@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16
+    container_name: cartverse_dev
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=cartverse
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/
+
+volumes:
+  postgres-data:
