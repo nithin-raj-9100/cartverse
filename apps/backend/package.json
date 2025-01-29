@@ -5,16 +5,22 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "studio": "prisma studio"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@oslojs/crypto": "^1.0.1",
+    "@oslojs/encoding": "^1.1.0",
+    "@prisma/client": "6.2.1",
     "fastify": "^5.2.1",
     "tsx": "^4.19.2"
   },
   "devDependencies": {
+    "@types/node": "^22.10.10",
+    "prisma": "^6.2.1",
     "typescript": "5.5.4"
   }
 }
