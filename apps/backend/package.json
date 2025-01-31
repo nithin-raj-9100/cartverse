@@ -12,9 +12,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/auth": "^5.0.2",
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/session": "^11.1.0",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@prisma/client": "6.2.1",
+    "@types/bcrypt": "^5.0.2",
+    "bcrypt": "^5.1.1",
     "fastify": "^5.2.1",
     "tsx": "^4.19.2"
   },

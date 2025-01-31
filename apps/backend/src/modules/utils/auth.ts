@@ -1,11 +1,10 @@
-import prisma from "../utils/prisma";
-
 import {
   encodeBase32LowerCaseNoPadding,
   encodeHexLowerCase,
 } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
 
+import prisma from "./prisma";
 import type { User, Session } from "@prisma/client";
 
 export function generateSessionToken(): string {
@@ -17,12 +16,12 @@ export function generateSessionToken(): string {
 
 export async function createSession(
   token: string,
-  userId: number
+  userId: string
 ): Promise<Session> {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
   const session: Session = {
     id: sessionId,
-    userId: userId.toString(),
+    userId,
     expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
   };
   await prisma.session.create({
@@ -46,7 +45,7 @@ export async function validateSessionToken(
   if (result === null) {
     return { session: null, user: null };
   }
-  const { users, ...session } = result;
+  const { users: user, ...session } = result;
   if (Date.now() >= session.expiresAt.getTime()) {
     await prisma.session.delete({ where: { id: sessionId } });
     return { session: null, user: null };
@@ -62,7 +61,7 @@ export async function validateSessionToken(
       },
     });
   }
-  return { session, user: users };
+  return { session, user };
 }
 
 export async function invalidateSession(sessionId: string): Promise<void> {

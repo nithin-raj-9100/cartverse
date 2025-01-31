@@ -1,22 +1,13 @@
-import Fastify, { fastify } from "fastify";
-
-const app = Fastify();
-
-app.get("/", async (request, reply) => {
-  reply.send({ hello: "world" });
-  return { hello: "world" };
-});
-
-// app.register("/signin")
-// app.register("/login")
+import { createApp } from "./app";
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
 const start = async () => {
   try {
+    const app = await createApp();
     await app.listen({ port: PORT });
   } catch (err) {
-    app.log.error(err);
+    console.error(err);
     process.exit(1);
   }
 };
