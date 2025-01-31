@@ -1,9 +1,16 @@
 import { FastifyInstance } from "fastify";
+import fastifyCookie from "@fastify/cookie";
 
 export async function cookiePlugin(fastify: FastifyInstance) {
-  await fastify.register(import("@fastify/cookie"), {
+  await fastify.register(fastifyCookie, {
     // secret: process.env.COOKIE_SECRET,
-    secret: "my-secret",
-    hook: "onRequest",
+    secret: process.env.COOKIE_SECRET,
+    // hook: "onRequest",
+    // parseOptions: {
+    //   domain: "localhost",
+    //   // httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "lax",
+    // },
   });
 }

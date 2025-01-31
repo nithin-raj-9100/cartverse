@@ -13,6 +13,7 @@ export function loginRoutes(fastify: FastifyInstance) {
     const { email, password } = request.body;
 
     const user = await prisma.user.findUnique({ where: { email } });
+
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return reply.status(401).send({ message: "Invalid credentials" });
     }
@@ -21,6 +22,25 @@ export function loginRoutes(fastify: FastifyInstance) {
 
     const token = generateSessionToken();
     const session = await createSession(token, user.id);
+
+    reply.setCookie("session_token", token, {
+      path: "/",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      expires: session.expiresAt,
+      signed: true,
+    });
+
+    console.log("Setting cookie:", {
+      token,
+      cookieHeader: reply.getHeader("cookie"),
+    });
+
+    fastify.log.info("Setting cookie:", {
+      token,
+      cookieHeader: reply.getHeader("cookie"),
+    });
 
     return reply.send({
       user: {
