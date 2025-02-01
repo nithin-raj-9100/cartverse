@@ -9,12 +9,56 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router";
+import { signup } from "@/lib/api";
+import { Link, useNavigate } from "react-router";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const mutation = useMutation({
+    // handle mutation
+    mutationFn: signup,
+    onSuccess: () => {
+      navigate("/login");
+    },
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (form.password !== form.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    mutation.mutate({
+      name: form.name,
+      email: form.email,
+      password: form.password,
+    });
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  console.log("form is ", form);
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -25,7 +69,7 @@ export function SignupForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
                 <Button variant="outline" className="w-full">
@@ -64,6 +108,9 @@ export function SignupForm({
                     type="text"
                     placeholder="John Doe"
                     required
+                    onChange={handleChange}
+                    value={form.name}
+                    name="name"
                   />
                 </div>
                 <div className="grid gap-2">
@@ -73,18 +120,50 @@ export function SignupForm({
                     type="email"
                     placeholder="m@example.com"
                     required
+                    onChange={handleChange}
+                    value={form.email}
+                    disabled={mutation.isPending}
+                    name="email"
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    onChange={handleChange}
+                    value={form.password}
+                    disabled={mutation.isPending}
+                    name="password"
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" required />
-                </div>
-                <div className="grid gap-2">
                   <Label htmlFor="confirm-password">Confirm Password</Label>
-                  <Input id="confirm-password" type="password" required />
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    required
+                    onChange={handleChange}
+                    value={form.confirmPassword}
+                    disabled={mutation.isPending}
+                    name="confirmPassword"
+                  />
                 </div>
-                <Button type="submit" className="w-full">
-                  Sign up
+
+                {mutation.isError && (
+                  <div className="text-red-500 text-sm">
+                    {mutation.error.message}
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  disabled={mutation.isPending}
+                  className="w-full"
+                >
+                  {mutation.isPending ? "Signing up..." : "Sign up"}
                 </Button>
               </div>
               <div className="text-center text-sm">

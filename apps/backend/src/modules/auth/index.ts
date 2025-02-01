@@ -1,20 +1,22 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance } from "fastify";
 
 export default async function authRoutes(fastify: FastifyInstance) {
-  // NOTE: Protected route to get authenticated user
-  console.log("auth route");
-  fastify.get(
-    "/",
-    (req: FastifyRequest, rep: FastifyReply) => {
-      rep.send("Hello World");
-      console.log("req is ", req, "reply is ", rep);
-      // i should check for the user here if he is authenticated or not
+  fastify.get("/", async (request, reply) => {
+    const sessionToken = await request.cookies.session_token;
+    console.log("sessionToken is zzzzzzzzz", reply.cookies);
+    console.log("sessionToken is ", sessionToken);
+
+    if (!sessionToken) {
+      return {
+        status: "unauthenticated",
+        message: "No session token found",
+      };
     }
-    // {
-    //   onRequest: fastify.auth([fastify.verifySession]),
-    //   handler: async (request, reply) => {
-    //     return { user: request.user };
-    //   },
-    // }
-  );
+
+    return {
+      status: "authenticated",
+      session_token: sessionToken,
+      message: "Valid session found",
+    };
+  });
 }

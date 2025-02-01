@@ -9,12 +9,46 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { login } from "@/lib/api";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const navigate = useNavigate();
+
+  const mutation = useMutation({
+    // handle mutation
+    mutationFn: login,
+    onSuccess: () => {
+      navigate("/");
+    },
+  });
+
+  const handelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutation.mutate({
+      email: form.email,
+      password: form.password,
+    });
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -25,7 +59,7 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
                 <Button variant="outline" className="w-full">
@@ -64,6 +98,9 @@ export function LoginForm({
                     type="email"
                     placeholder="m@example.com"
                     required
+                    onChange={handelChange}
+                    value={form.email}
+                    name="email"
                   />
                 </div>
                 <div className="grid gap-2">
@@ -76,10 +113,29 @@ export function LoginForm({
                       Forgot your password?
                     </a>
                   </div>
-                  <Input id="password" type="password" required />
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    onChange={handelChange}
+                    value={form.password}
+                    name="password"
+                    disabled={mutation.isPending}
+                  />
                 </div>
-                <Button type="submit" className="w-full">
-                  Login
+
+                {mutation.isError && (
+                  <div className="text-red-500 text-sm">
+                    {mutation.error.message}
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={mutation.isPending}
+                >
+                  {mutation.isPending ? "Logging Up.." : "Login"}
                 </Button>
               </div>
               <div className="text-center text-sm">

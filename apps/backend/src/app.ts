@@ -3,6 +3,7 @@ import Fastify from "fastify";
 import fastifyCookie from "@fastify/cookie";
 import { registerPlugins } from "./modules/plugins";
 import { registerRoutes } from "./routes";
+import fastifyCors from "@fastify/cors";
 
 export async function createApp() {
   const app = Fastify({ logger: true, ignoreTrailingSlash: true });
@@ -16,6 +17,11 @@ export async function createApp() {
       secure: false,
       sameSite: "lax",
     },
+  });
+
+  await app.register(fastifyCors, {
+    origin: "http://localhost:5173",
+    credentials: true,
   });
 
   // first should be the cookie plugin and then the routes
