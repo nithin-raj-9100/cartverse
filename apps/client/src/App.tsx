@@ -7,21 +7,34 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Login from "./pages/login";
 import Home from "./pages/Home";
 import Signup from "./pages/signup";
+import AuthRoute from "./pages/AuthRoute";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   return (
-    <div>
-      <QueryClientProvider client={queryClient}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/login"
+          element={
+            <AuthRoute>
+              <Login />
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <AuthRoute>
+              <Signup />
+            </AuthRoute>
+          }
+        />
+      </Routes>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 };
 

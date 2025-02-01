@@ -32,16 +32,6 @@ export function loginRoutes(fastify: FastifyInstance) {
       signed: true,
     });
 
-    console.log("Setting cookie:", {
-      token,
-      cookieHeader: reply.getHeader("cookie"),
-    });
-
-    fastify.log.info("Setting cookie:", {
-      token,
-      cookieHeader: reply.getHeader("cookie"),
-    });
-
     return reply.send({
       user: {
         id: user.id,
