@@ -1,4 +1,6 @@
+import Header from "@/components/Header";
 import { Navbar } from "@/components/Navigation";
+import ProductGrid from "@/components/ProductGrid";
 import { SkeletonCard } from "@/components/Skeleton";
 import { useQuery } from "@tanstack/react-query";
 
@@ -27,9 +29,9 @@ const Home = () => {
 
   return (
     <div>
-      <Navbar />
-      <h1>Home</h1>
-      <p>Welcome to the home page</p>
+      {/* <Navbar /> */}
+      <Header />
+      {/* <ProductGrid /> */}
 
       {data && data.status === "authenticated" ? (
         <p>User is authenticated</p>

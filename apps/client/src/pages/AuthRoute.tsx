@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 
-// Protected Route Component
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { data, isLoading } = useQuery({
