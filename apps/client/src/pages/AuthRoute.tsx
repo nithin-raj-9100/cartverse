@@ -13,6 +13,8 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
     },
   });
 
+  console.log("data is", data);
+
   if (isLoading) return <div>Loading...</div>;
 
   if (data?.status === "authenticated") {

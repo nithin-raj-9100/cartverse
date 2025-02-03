@@ -1,127 +1,178 @@
 import { Link } from "react-router";
-import { ChevronDown, Search, User, ShoppingCart } from "lucide-react";
+import { Search, User, Menu, ShoppingBag } from "lucide-react";
 
 // [ ] Internal Imports
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Avatar } from "@/components/ui/avatar";
+import { useState } from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet";
 
-const Header = () => {
+const categories = [
+  { name: "Clothing", subcategories: ["T-Shirts", "Hoodies", "Jackets"] },
+  { name: "Accessories", subcategories: ["Hats", "Bags", "Mugs"] },
+  { name: "Baby", subcategories: ["Onesies", "Caps"] },
+  { name: "Pets", subcategories: ["Dog Sweaters"] },
+  { name: "Tech", subcategories: ["Keyboards", "Webcam Covers", "Stickers"] },
+];
+
+const Header = ({ data }: { data: any }) => {
+  // const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const { status, user } = data || {};
+  // @ts-ignore
+  const userName = user?.name | "Guest";
+
+  console.log("status", status);
+  console.log("user", userName);
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
-        <div className="mr-6 flex items-center space-x-3">
-          <Link
-            to="/"
-            className="flex items-center space-x-2 hover:opacity-90 transition-opacity"
-          >
-            <span className="font-bold text-xl">
-              <ShoppingCart />
-            </span>
-          </Link>
-        </div>
-
-        <div className="flex items-center space-x-8 text-sm font-medium">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-1.5 transition-colors hover:text-foreground/80 hover:underline decoration-2 underline-offset-4 focus:outline-none">
-              Categories
-              <ChevronDown className="h-4 w-4 opacity-70" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
-              <DropdownMenuItem asChild>
-                <Link to="/categories/baby" className="w-full">
-                  Baby
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/categories/clothing" className="w-full">
-                  Clothing
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/categories/accessories" className="w-full">
-                  Accessories
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/categories/home-office" className="w-full">
-                  Home &amp; Office
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Link
-            to="/products"
-            className="transition-colors hover:text-foreground/80 hover:underline decoration-2 underline-offset-4"
-          >
-            Products
-          </Link>
-          <Link
-            to="/orders"
-            className="flex items-center transition-colors hover:text-foreground/80 hover:underline decoration-2 underline-offset-4"
-          >
-            Orders
-            {/* <Badge variant="secondary" className="ml-2 hover:bg-secondary/80">
-              2
-            </Badge> */}
-          </Link>
-          {/* <Link
-            to="/customers"
-            className="transition-colors hover:text-foreground/80 hover:underline decoration-2 underline-offset-4"
-          >
-            Customers
-          </Link> */}
-        </div>
-
-        <div className="ml-auto flex items-center space-x-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="w-64 pl-10 pr-4 md:w-80 lg:w-96 transition-all duration-200 focus:w-[28rem]"
-              aria-label="Search products"
-            />
+    <div>
+      <header className="bg-background">
+        <nav
+          className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
+          aria-label="Global"
+        >
+          <div className="flex lg:flex-1">
+            <Link to="/" className="-m-1.5 p-1.5">
+              <span className="sr-only">CartVerse</span>
+              <img
+                className="h-8 w-auto"
+                src="/path-to-your-logo.png"
+                alt="Logo"
+                width={32}
+                height={32}
+              />
+            </Link>
           </div>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Avatar className="h-9 w-9 cursor-pointer">
-                <User className="h-6 w-6" />
-                <span className="sr-only">Toggle user menu</span>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-              <DropdownMenuItem className="font-semibold text-lg">
-                {/* Show real user name */}
-                John Doe
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/profile" className="block w-full text-left">
-                  Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Button variant="outline" className="block w-full text-left">
+          <div className="flex lg:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Open main menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6 flow-root">
+                  <div className="-my-6 divide-y divide-gray-500/10">
+                    <div className="space-y-2 py-6">
+                      {categories.map((category) => (
+                        <div key={category.name} className="space-y-2">
+                          <h3 className="text-sm font-semibold leading-6 text-foreground">
+                            {category.name}
+                          </h3>
+                          {category.subcategories.map((subcategory) => (
+                            <Link
+                              key={subcategory}
+                              to={`/${subcategory.toLowerCase().replace(" ", "-")}`}
+                              className="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold leading-7 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                            >
+                              {subcategory}
+                            </Link>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="py-6">
+                      {user ? (
+                        <>
+                          <span className="block px-3 py-2 -mx-3 text-base font-semibold leading-7 text-foreground">
+                            Welcome, {user.name}
+                          </span>
+                          <Button
+                            // onClick={logout}
+                            variant="ghost"
+                            className="w-full justify-start"
+                          >
+                            Logout
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          asChild
+                          variant="ghost"
+                          className="w-full justify-start"
+                        >
+                          <Link to="/login">Log in</Link>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+          <div className="hidden lg:flex lg:gap-x-12">
+            {categories.map((category) => (
+              <DropdownMenu key={category.name}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost">{category.name}</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {category.subcategories.map((subcategory) => (
+                    <DropdownMenuItem key={subcategory} asChild>
+                      <Link
+                        to={`/${subcategory.toLowerCase().replace(" ", "-")}`}
+                      >
+                        {subcategory}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ))}
+          </div>
+          <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-6">
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/search">
+                <Search className="h-6 w-6" />
+                <span className="sr-only">Search</span>
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/cart">
+                <ShoppingBag className="h-6 w-6" />
+                <span className="sr-only">Cart</span>
+              </Link>
+            </Button>
+            {user ? (
+              <div className="flex items-center gap-x-4">
+                <span className="text-sm font-semibold leading-6 text-foreground">
+                  Welcome, {user.name}
+                </span>
+                <Button
+                  // onClick={logout}
+                  variant="ghost"
+                >
                   Logout
                 </Button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-    </header>
+              </div>
+            ) : (
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/login">
+                  <User className="h-6 w-6" />
+                  <span className="sr-only">Log in</span>
+                </Link>
+              </Button>
+            )}
+          </div>
+        </nav>
+      </header>
+    </div>
   );
 };
 
