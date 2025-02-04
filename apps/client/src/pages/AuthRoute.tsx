@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useNavigate } from "react-router";
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
@@ -17,8 +18,19 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (isLoading) return <div>Loading...</div>;
 
+  useEffect(() => {
+    if (data?.status === "authenticated") {
+      navigate("/", { replace: true });
+    }
+  }, [data, navigate]);
+
+  useEffect(() => {
+    if (data?.status === "unauthenticated") {
+      navigate("/login");
+    }
+  }, [data, navigate]);
+
   if (data?.status === "authenticated") {
-    navigate("/");
     return null;
   }
 
