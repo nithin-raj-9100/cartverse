@@ -1,5 +1,5 @@
-import { Link } from "react-router";
-import { Search, User, Menu, ShoppingBag } from "lucide-react";
+import { Link, useNavigate } from "react-router";
+import { Search, User, Menu, ShoppingBag, ShoppingCart } from "lucide-react";
 
 // [ ] Internal Imports
 import { Button } from "@/components/ui/button";
@@ -27,15 +27,32 @@ const categories = [
 ];
 
 const Header = ({ data }: { data: any }) => {
-  // const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const { status, user } = data || {};
   // @ts-ignore
   const userName = user?.name | "Guest";
 
+  const navigate = useNavigate();
+
   console.log("status", status);
   console.log("user", userName);
 
+  // this should be also included inisde useQuery
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("http://localhost:4000/auth/logout", {
+        credentials: "include",
+        method: "POST",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to logout");
+      }
+
+      navigate("/");
+    } catch (error) {
+      console.error("Error occured", error);
+    }
+  };
   return (
     <div>
       <header className="bg-background">
@@ -46,13 +63,14 @@ const Header = ({ data }: { data: any }) => {
           <div className="flex lg:flex-1">
             <Link to="/" className="-m-1.5 p-1.5">
               <span className="sr-only">CartVerse</span>
-              <img
+              <ShoppingCart className="h-8 w-8" />
+              {/* <img
                 className="h-8 w-auto"
                 src="/path-to-your-logo.png"
                 alt="Logo"
                 width={32}
                 height={32}
-              />
+              /> */}
             </Link>
           </div>
           <div className="flex lg:hidden">
@@ -94,7 +112,7 @@ const Header = ({ data }: { data: any }) => {
                             Welcome, {user.name}
                           </span>
                           <Button
-                            // onClick={logout}
+                            onClick={handleLogout}
                             variant="ghost"
                             className="w-full justify-start"
                           >
@@ -137,6 +155,7 @@ const Header = ({ data }: { data: any }) => {
             ))}
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-6">
+            {/* Search can me a modal  */}
             <Button variant="ghost" size="icon" asChild>
               <Link to="/search">
                 <Search className="h-6 w-6" />
@@ -154,10 +173,7 @@ const Header = ({ data }: { data: any }) => {
                 <span className="text-sm font-semibold leading-6 text-foreground">
                   Welcome, {user.name}
                 </span>
-                <Button
-                  // onClick={logout}
-                  variant="ghost"
-                >
+                <Button onClick={handleLogout} variant="ghost">
                   Logout
                 </Button>
               </div>
