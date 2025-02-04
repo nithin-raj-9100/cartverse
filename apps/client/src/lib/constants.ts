@@ -37,13 +37,13 @@ export const navigation = {
         {
           name: "Dresses",
           href: "#",
-          imageSrc: "/images/dress-1.png",
+          imageSrc: "/images/t-shirt-women-black-3-resized.jpg",
           imageAlt: "Elegant women's dress",
         },
         {
           name: "Handbags",
           href: "#",
-          imageSrc: "/images/handbag-1.png",
+          imageSrc: "/images/handbag-1.webp",
           imageAlt: "Stylish handbag",
         },
       ],

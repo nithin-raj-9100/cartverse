@@ -239,6 +239,27 @@ export default function Navbar({ data }: { data: any }) {
                             {/* Reduced padding and gap values */}
                             <div className="grid grid-cols-2 gap-x-4 gap-y-4 py-2">
                               <div className="col-start-2 grid grid-cols-2 gap-x-4">
+                                {/* {category.featured.map((item) => (
+                                  <div
+                                    key={item.name}
+                                    className="group relative text-base sm:text-sm"
+                                  > 
+                                 <div className="aspect-h-1 aspect-w-1 overflow-hidden rounded-lg">
+                                      <img
+                                        src={item.imageSrc}
+                                        alt={item.imageAlt}
+                                        className="h-full w-full object-contain object-center hover:opacity-75"
+                                      />
+                                    </div>
+                                    <a
+                                      href={item.href}
+                                      className="mt-4 block font-medium text-gray-900"
+                                    >
+                                      {item.name}
+                                    </a>
+                                  </div>
+                                ))} */}
+
                                 {category.featured.map((item) => (
                                   <div
                                     key={item.name}
