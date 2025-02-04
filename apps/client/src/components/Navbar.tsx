@@ -19,7 +19,7 @@ import {
   ShoppingBagIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ShoppingCart } from "lucide-react";
 
 // [ ] Internal Imports
@@ -27,7 +27,24 @@ import { navigation } from "../lib/constants";
 
 export default function Navbar({ data }: { data: any }) {
   const [open, setOpen] = useState(false);
+  // this should be also included inisde useQuery
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("http://localhost:4000/auth/logout", {
+        credentials: "include",
+        method: "POST",
+      });
 
+      if (!res.ok) {
+        throw new Error("Failed to logout");
+      }
+
+      navigate("/");
+    } catch (error) {
+      console.error("Error occured", error);
+    }
+  };
   console.log("data from navbar is ", data);
 
   return (
@@ -135,13 +152,17 @@ export default function Navbar({ data }: { data: any }) {
             <div className="space-y-6 border-t border-gray-200 px-4 py-6">
               <div className="flow-root">
                 {data?.status === "authenticated" ? (
-                  <a
-                    href="#"
-                    // onClick={handleLogout}
-                    className="-m-2 block p-2 font-medium text-gray-900"
-                  >
-                    Logout
-                  </a>
+                  <>
+                    <p className="-m-2 block p-2 font-medium text-gray-900">
+                      Hello, {data.user.name}
+                    </p>
+                    <button
+                      onClick={handleLogout}
+                      className="-m-2 block p-2 font-medium text-gray-900"
+                    >
+                      Logout
+                    </button>
+                  </>
                 ) : (
                   <>
                     <Link
@@ -286,14 +307,46 @@ export default function Navbar({ data }: { data: any }) {
 
               <div className="ml-auto flex items-center">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  {data?.status === "authenticated" ? (
-                    <Link
-                      to="/"
-                      // onClick={handleLogout}
-                      className="text-sm font-medium text-gray-700 hover:text-gray-800"
+                  {/* Search */}
+                  <div className="flex lg:ml-6">
+                    <a
+                      href="#"
+                      className="p-2 text-gray-400 hover:text-gray-500"
                     >
-                      Logout
-                    </Link>
+                      <span className="sr-only">Search</span>
+                      <MagnifyingGlassIcon
+                        aria-hidden="true"
+                        className="size-6"
+                      />
+                    </a>
+                  </div>
+
+                  {/* Cart */}
+                  <div className="ml-4 flow-root lg:ml-6">
+                    <a href="#" className="group -m-2 flex items-center p-2">
+                      <ShoppingBagIcon
+                        aria-hidden="true"
+                        className="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
+                      />
+                      <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
+                        0
+                      </span>
+                      <span className="sr-only">items in cart, view bag</span>
+                    </a>
+                  </div>
+
+                  {data?.status === "authenticated" ? (
+                    <>
+                      <p className="text-sm font-medium text-gray-700">
+                        Hello, {data.user.name}
+                      </p>
+                      <button
+                        onClick={handleLogout}
+                        className="text-sm font-medium text-gray-700 hover:text-gray-800"
+                      >
+                        Logout
+                      </button>
+                    </>
                   ) : (
                     <>
                       <Link
