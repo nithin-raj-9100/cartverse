@@ -5,19 +5,19 @@ const Home = () => {
   // this is be extracted in to a custom hook of useAuth
   // Also should add types for the data object
 
-  const { data, isPending } = useQuery({
-    queryKey: ["auth"],
-    queryFn: async () => {
-      const response = await fetch("http://localhost:4000/auth", {
-        credentials: "include",
-      });
-      return response.json();
-    },
-  });
+  // const { data, isPending } = useQuery({
+  //   queryKey: ["auth"],
+  //   queryFn: async () => {
+  //     const response = await fetch("http://localhost:4000/auth", {
+  //       credentials: "include",
+  //     });
+  //     return response.json();
+  //   },
+  // });
 
-  console.log("data", data);
+  // console.log("data", data);
 
-  if (isPending) return <div>Loading...</div>;
+  // if (isPending) return <div>Loading...</div>;
 
   const jsonData = [
     {
@@ -48,12 +48,8 @@ const Home = () => {
 
   return (
     <div>
-      <Header data={data || { status: "unauthenticated", user: null }} />
       <div className="container mx-auto">
-        <h1 className="text-4xl font-bold">Home</h1>
-        <p>Welcome to the home page</p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8">
+        <div className="grid px-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8">
           {jsonData.map((item) => (
             <div
               key={item.id}
