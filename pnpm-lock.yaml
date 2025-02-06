@@ -44,6 +44,9 @@ importers:
       '@types/bcrypt':
         specifier: ^5.0.2
         version: 5.0.2
+      arctic:
+        specifier: ^3.2.2
+        version: 3.2.2
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1
@@ -1140,8 +1143,18 @@ packages:
       '@oslojs/binary': 1.0.0
     dev: false
 
+  /@oslojs/encoding@0.4.1:
+    resolution: {integrity: sha512-hkjo6MuIK/kQR5CrGNdAPZhS01ZCXuWDRJ187zh6qqF2+yMHZpD9fAYpX8q2bOO6Ryhl3XpCT6kUX76N8hhm4Q==}
+    dev: false
+
   /@oslojs/encoding@1.1.0:
     resolution: {integrity: sha512-70wQhgYmndg4GCPxPPxPGevRKqTIJ2Nh4OkiMWmDAVYsTQ+Ta7Sq+rPevXyXGdzr30/qZBnyOalCszoMxlyldQ==}
+    dev: false
+
+  /@oslojs/jwt@0.2.0:
+    resolution: {integrity: sha512-bLE7BtHrURedCn4Mco3ma9L4Y1GR2SMBuIvjWr7rmQ4/W/4Jy70TIAgZ+0nIlk0xHz1vNP8x8DCns45Sb2XRbg==}
+    dependencies:
+      '@oslojs/encoding': 0.4.1
     dev: false
 
   /@pkgjs/parseargs@0.11.0:
@@ -2292,6 +2305,14 @@ packages:
 
   /aproba@2.0.0:
     resolution: {integrity: sha512-lYe4Gx7QT+MKGbDsA+Z+he/Wtef0BiwDOlK/XkBrdfsh9J/jPPXbX0tE9x9cl27Tmu5gg3QUbUrQYa/y+KOHPQ==}
+    dev: false
+
+  /arctic@3.2.2:
+    resolution: {integrity: sha512-wypdE8NnUOMbxsKtKGn57pEtt47EBvwVOFutGVmOPEHfg4nizOfVwl+yWpp7cUCkZJptuHh7hJixsrUhMOpusw==}
+    dependencies:
+      '@oslojs/crypto': 1.0.1
+      '@oslojs/encoding': 1.1.0
+      '@oslojs/jwt': 0.2.0
     dev: false
 
   /are-we-there-yet@2.0.0:
