@@ -1,68 +1,59 @@
 import { useQuery } from "@tanstack/react-query";
-import Header from "@/components/Header";
+import { Link } from "react-router";
+import ProductGrid from "@/components/Product/ProductGrid";
+import { getProducts } from "@/api/products";
+import { Loader2 } from "lucide-react";
 
 const Home = () => {
-  // this is be extracted in to a custom hook of useAuth
-  // Also should add types for the data object
+  const {
+    data: products = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["products"],
+    queryFn: getProducts,
+  });
 
-  // const { data, isPending } = useQuery({
-  //   queryKey: ["auth"],
-  //   queryFn: async () => {
-  //     const response = await fetch("http://localhost:4000/auth", {
-  //       credentials: "include",
-  //     });
-  //     return response.json();
-  //   },
-  // });
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
-  // console.log("data", data);
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-red-500">
+        Error loading products. Please try again later.
+      </div>
+    );
+  }
 
-  // if (isPending) return <div>Loading...</div>;
-
-  const jsonData = [
-    {
-      id: 1,
-      path: "/images/t-shirt-circles-black.png",
-    },
-    {
-      id: 2,
-      path: "/images/t-shirt-circles-blue.png",
-    },
-    {
-      id: 3,
-      path: "/images/t-shirt-color-black.png",
-    },
-    {
-      id: 4,
-      path: "/images/t-shirt-color-white.png",
-    },
-    {
-      id: 6,
-      path: "/images/t-shirt-spiral-3.png",
-    },
-    {
-      id: 7,
-      path: "/images/t-shirt-spiral-4.png",
-    },
-  ];
+  const featuredProducts = products.slice(0, 6);
 
   return (
-    <div>
-      <div className="container mx-auto">
-        <div className="grid px-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8">
-          {jsonData.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
-            >
-              <img
-                src={item.path}
-                alt="t-shirt"
-                className="w-full h-auto object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-          ))}
+    <div className="bg-white">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+        <div className="mb-12 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+              Featured Products
+            </h2>
+            <p className="mt-2 text-base text-gray-500">
+              Check out our latest collection
+            </p>
+          </div>
+          <Link
+            to="/products"
+            className="text-sm font-semibold text-indigo-600 hover:text-indigo-500"
+          >
+            View all products
+            <span aria-hidden="true"> →</span>
+          </Link>
         </div>
+
+        <ProductGrid products={featuredProducts} />
       </div>
     </div>
   );

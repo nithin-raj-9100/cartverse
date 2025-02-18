@@ -2,6 +2,7 @@ import { Outlet } from "react-router";
 import Header from "@/components/Header";
 import Footer from "@/pages/Footer";
 import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 const Layout = () => {
   const { data, isPending } = useQuery({
@@ -14,10 +15,16 @@ const Layout = () => {
     },
   });
 
-  if (isPending) return <div>Loading...</div>;
+  if (isPending) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex min-h-screen flex-col">
       <Header data={data || { status: "unauthenticated", user: null }} />
       <main className="flex-1">
         <Outlet />
