@@ -1,4 +1,3 @@
-import { GalleryVerticalEnd } from "lucide-react";
 import { SignupForm } from "@/components/signup-form";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router";
@@ -33,10 +32,11 @@ export default function Signup() {
             to="/"
             className="flex items-center gap-2 self-center font-medium"
           >
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <GalleryVerticalEnd className="size-4" />
-            </div>
-            CartVerse
+            <img
+              alt="CartVerse Logo"
+              src="/logo/logo.png"
+              className="h-12 w-auto"
+            />
           </Link>
           <SignupForm />
         </div>

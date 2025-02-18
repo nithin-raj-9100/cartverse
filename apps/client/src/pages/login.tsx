@@ -1,11 +1,16 @@
-import { GalleryVerticalEnd } from "lucide-react";
 import { LoginForm } from "@/components/login-form";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 // import { SkeletonCard } from "@/components/Skeleton";
 
 export default function Login() {
   const navigate = useNavigate();
+
+  const [searchParams] = useSearchParams();
+  const error = searchParams.get("error");
+  // const { data: authData, isLoading } = useAuth();
 
   const { data, isLoading } = useQuery({
     queryKey: ["auth"],
@@ -33,11 +38,20 @@ export default function Login() {
             to="/"
             className="flex items-center gap-2 self-center font-medium"
           >
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <GalleryVerticalEnd className="size-4" />
-            </div>
-            CartVerse
+            <img
+              alt="CartVerse Logo"
+              src="/logo/logo.png"
+              className="h-12 w-auto"
+            />
           </Link>
+          {error === "github-auth-failed" && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                GitHub authentication failed. Please try again.
+              </AlertDescription>
+            </Alert>
+          )}
           <LoginForm />
         </div>
       </div>
