@@ -14,13 +14,14 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  name      String
-  password  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  Session   Session[]
+  id           String         @id @default(cuid())
+  email        String         @unique
+  name         String
+  password     String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  Session      Session[]
+  OAuthAccount OAuthAccount[]
 }
 
 model Product {
@@ -31,6 +32,10 @@ model Product {
   price       Float
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  imageUrl    String
+  sizes       String[]
+  colors      String[]
+  // Add a relation to the Image model
 }
 
 model Session {
@@ -38,4 +43,14 @@ model Session {
   userId    String
   expiresAt DateTime
   users     User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
+model OAuthAccount {
+  id                String @id @default(cuid())
+  provider          String
+  providerAccountId String
+  userId            String
+  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
