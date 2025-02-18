@@ -25,7 +25,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
     }
 
     const sessionId = encodeHexLowerCase(
-      sha256(new TextEncoder().encode(sessionToken))
+      sha256(new TextEncoder().encode(sessionToken)),
     );
 
     const session = await prisma.session.findUnique({

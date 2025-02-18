@@ -24,7 +24,7 @@ export function logoutRoutes(fastify: FastifyInstance) {
 
     try {
       const sessionId = encodeHexLowerCase(
-        sha256(new TextEncoder().encode(sessionToken))
+        sha256(new TextEncoder().encode(sessionToken)),
       );
 
       await invalidateSession(sessionId);
