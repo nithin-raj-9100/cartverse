@@ -21,16 +21,20 @@ import {
 } from "@heroicons/react/24/outline";
 import { Link, useNavigate } from "react-router";
 import { ShoppingCart } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/store/slices/auth";
 
 // [ ] Internal Imports
 import { navigation } from "../lib/constants";
 
 export default function Navbar({ data }: { data: any }) {
   const [open, setOpen] = useState(false);
-  // this should be also included inisde useQuery
   const navigate = useNavigate();
-  const handleLogout = async () => {
-    try {
+  const { logout: logoutStore } = useAuthStore();
+  const queryClient = useQueryClient();
+
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
       const res = await fetch("http://localhost:4000/auth/logout", {
         credentials: "include",
         method: "POST",
@@ -40,11 +44,19 @@ export default function Navbar({ data }: { data: any }) {
         throw new Error("Failed to logout");
       }
 
+      return res.json();
+    },
+    onSuccess: () => {
+      logoutStore();
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
       navigate("/");
-    } catch (error) {
-      console.error("Error occured", error);
-    }
+    },
+  });
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
   };
+
   console.log("data from navbar is ", data);
 
   return (
@@ -133,12 +145,12 @@ export default function Navbar({ data }: { data: any }) {
                         >
                           {section.items.map((item) => (
                             <li key={item.name} className="flow-root">
-                              <a
-                                href={item.href}
+                              <Link
+                                to={item.href}
                                 className="-m-2 block p-2 text-gray-500"
                               >
                                 {item.name}
-                              </a>
+                              </Link>
                             </li>
                           ))}
                         </ul>
@@ -208,8 +220,11 @@ export default function Navbar({ data }: { data: any }) {
               <div className="ml-4 flex lg:ml-0">
                 <Link to="/">
                   <span className="sr-only">CartVerse</span>
-                  {/* <img alt="Logo" src="/logo1.webp" className="h-12 w-auto" /> */}
-                  <ShoppingCart />
+                  <img
+                    alt="CartVerse Logo"
+                    src="/logo/logo.png"
+                    className="h-12 w-auto"
+                  />
                 </Link>
               </div>
 
@@ -270,8 +285,8 @@ export default function Navbar({ data }: { data: any }) {
                                       src={item.imageSrc}
                                       className="aspect-square w-full rounded-lg bg-gray-100 object-cover group-hover:opacity-75"
                                     />
-                                    <a
-                                      href={item.href}
+                                    <Link
+                                      to={item.href}
                                       className="mt-2 block font-medium text-gray-900"
                                     >
                                       <span
@@ -279,7 +294,7 @@ export default function Navbar({ data }: { data: any }) {
                                         className="absolute inset-0 z-10"
                                       />
                                       {item.name}
-                                    </a>
+                                    </Link>
                                     <p
                                       aria-hidden="true"
                                       className="mt-1 text-xs"
@@ -305,12 +320,12 @@ export default function Navbar({ data }: { data: any }) {
                                     >
                                       {section.items.map((item) => (
                                         <li key={item.name} className="flex">
-                                          <a
-                                            href={item.href}
+                                          <Link
+                                            to={item.href}
                                             className="hover:text-gray-800"
                                           >
                                             {item.name}
-                                          </a>
+                                          </Link>
                                         </li>
                                       ))}
                                     </ul>
@@ -330,8 +345,8 @@ export default function Navbar({ data }: { data: any }) {
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
                   {/* Search */}
                   <div className="flex lg:ml-6">
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="p-2 text-gray-400 hover:text-gray-500"
                     >
                       <span className="sr-only">Search</span>
@@ -339,12 +354,12 @@ export default function Navbar({ data }: { data: any }) {
                         aria-hidden="true"
                         className="size-6"
                       />
-                    </a>
+                    </Link>
                   </div>
 
                   {/* Cart */}
                   <div className="ml-4 flow-root lg:ml-6">
-                    <a href="#" className="group -m-2 flex items-center p-2">
+                    <Link to="#" className="group -m-2 flex items-center p-2">
                       <ShoppingBagIcon
                         aria-hidden="true"
                         className="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
@@ -353,7 +368,7 @@ export default function Navbar({ data }: { data: any }) {
                         0
                       </span>
                       <span className="sr-only">items in cart, view bag</span>
-                    </a>
+                    </Link>
                   </div>
 
                   {data?.status === "authenticated" ? (
