@@ -57,7 +57,9 @@ export function SignupForm({
     }));
   };
 
-  console.log("form is ", form);
+  const handleGitHubSignup = () => {
+    window.location.href = "http://localhost:4000/auth/github";
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -72,7 +74,12 @@ export function SignupForm({
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
-                <Button variant="outline" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleGitHubSignup}
+                  type="button"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -153,7 +160,7 @@ export function SignupForm({
                 </div>
 
                 {mutation.isError && (
-                  <div className="text-red-500 text-sm">
+                  <div className="text-sm text-red-500">
                     {mutation.error.message}
                   </div>
                 )}

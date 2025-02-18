@@ -11,8 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { login } from "@/lib/api";
+import { useAuthStore } from "@/store/slices/auth";
+import toast from "react-hot-toast";
 
 export function LoginForm({
   className,
@@ -24,16 +26,22 @@ export function LoginForm({
   });
 
   const navigate = useNavigate();
+  const { login: loginStore } = useAuthStore();
+  const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    // handle mutation
     mutationFn: login,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      loginStore(data.user, data.user.id);
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
       navigate("/");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to login");
     },
   });
 
-  const handelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
@@ -49,11 +57,15 @@ export function LoginForm({
     });
   };
 
+  const handleGitHubLogin = () => {
+    window.location.href = "http://localhost:4000/auth/github";
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl ">Welcome back</CardTitle>
+          <CardTitle className="text-xl">Welcome back</CardTitle>
           <CardDescription>
             Login with your GitHub or Google account
           </CardDescription>
@@ -62,7 +74,12 @@ export function LoginForm({
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
-                <Button variant="outline" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleGitHubLogin}
+                  type="button"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -98,7 +115,7 @@ export function LoginForm({
                     type="email"
                     placeholder="m@example.com"
                     required
-                    onChange={handelChange}
+                    onChange={handleChange}
                     value={form.email}
                     name="email"
                   />
@@ -117,7 +134,7 @@ export function LoginForm({
                     id="password"
                     type="password"
                     required
-                    onChange={handelChange}
+                    onChange={handleChange}
                     value={form.password}
                     name="password"
                     disabled={mutation.isPending}
@@ -125,7 +142,7 @@ export function LoginForm({
                 </div>
 
                 {mutation.isError && (
-                  <div className="text-red-500 text-sm">
+                  <div className="text-sm text-red-500">
                     {mutation.error.message}
                   </div>
                 )}
@@ -135,7 +152,7 @@ export function LoginForm({
                   className="w-full"
                   disabled={mutation.isPending}
                 >
-                  {mutation.isPending ? "Logging Up.." : "Login"}
+                  {mutation.isPending ? "Logging in..." : "Login"}
                 </Button>
               </div>
               <div className="text-center text-sm">
