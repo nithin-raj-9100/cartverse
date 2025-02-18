@@ -1,41 +1,38 @@
 import "./index.css";
-import { Route, Routes } from "react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Outlet, ScrollRestoration } from "react-router";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-// [ ] Internal Imports
-import Login from "./pages/login";
-import Home from "./pages/Home";
-import Signup from "./pages/signup";
-import AuthRoute from "./pages/AuthRoute";
-import Layout from "./pages/Layout";
-
-const queryClient = new QueryClient();
+import { Toaster } from "react-hot-toast";
+import { queryClient } from "./store/query-client";
 
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/login"
-            element={
-              <AuthRoute>
-                <Login />
-              </AuthRoute>
-            }
-          />
-          <Route
-            path="/signup"
-            element={
-              <AuthRoute>
-                <Signup />
-              </AuthRoute>
-            }
-          />
-        </Route>
-      </Routes>
+      <ScrollRestoration
+        getKey={(location) => {
+          return location.pathname.startsWith("/product/")
+            ? location.pathname
+            : location.key;
+        }}
+      />
+      <Outlet />
+      <Toaster
+        toastOptions={{
+          style: {
+            background: "#363636",
+            color: "#fff",
+            padding: "16px",
+            borderRadius: "8px",
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: "#4aed88",
+              secondary: "#fff",
+            },
+          },
+        }}
+      />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
