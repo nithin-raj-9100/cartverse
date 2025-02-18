@@ -100,9 +100,9 @@ export const navigation = {
           imageAlt: "Stylish cowboy hat",
         },
         {
-          name: "Chic Bags",
+          name: "Hand Bags",
           href: "#",
-          imageSrc: "/images/bag-black.png",
+          imageSrc: "/images/handbag-1.webp",
           imageAlt: "Sleek black bag",
         },
       ],
