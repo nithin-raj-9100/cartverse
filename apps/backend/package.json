@@ -26,7 +26,8 @@
     "arctic": "^3.2.2",
     "bcrypt": "^5.1.1",
     "fastify": "^5.2.1",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/node": "^22.10.10",
