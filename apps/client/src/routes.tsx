@@ -7,11 +7,13 @@ import Login from "./pages/login";
 import Signup from "./pages/signup";
 import AuthRoute from "./pages/AuthRoute";
 import App from "./App";
+import ErrorPage from "./pages/ErrorPage";
 
 export const routes = [
   {
     path: "/",
     element: <App />,
+    errorElement: <ErrorPage />,
     children: [
       {
         element: <Layout />,
