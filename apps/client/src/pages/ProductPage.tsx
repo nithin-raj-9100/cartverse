@@ -1,13 +1,11 @@
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getProduct } from "@/api/products";
-import { Loader2, ShoppingCart } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useCartStore } from "@/store/slices/cart";
+import { Loader2 } from "lucide-react";
+import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
-  const addItem = useCartStore((state) => state.addItem);
 
   const {
     data: product,
@@ -18,17 +16,6 @@ const ProductPage = () => {
     queryFn: () => getProduct(id!),
     enabled: !!id,
   });
-
-  const handleAddToCart = () => {
-    if (product) {
-      addItem({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        imageUrl: product.imageUrl,
-      });
-    }
-  };
 
   if (isLoading) {
     return (
@@ -114,15 +101,14 @@ const ProductPage = () => {
             </div>
 
             <div className="mt-8 border-t border-gray-200 pt-8">
-              <Button
-                onClick={handleAddToCart}
-                className="w-full hover:bg-gray-200"
+              <AddToCartButton
+                productId={product.id}
                 size="lg"
+                className="w-full"
                 variant="secondary"
               >
-                <ShoppingCart className="mr-2 h-5 w-5" />
                 Add to Cart
-              </Button>
+              </AddToCartButton>
             </div>
           </div>
         </div>

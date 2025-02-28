@@ -1,20 +1,39 @@
 import { Product } from "@/types";
 import { Link } from "react-router";
-import { useCartStore } from "@/store/slices/cart";
-import { ShoppingCart } from "lucide-react";
+import { useAddToCart } from "@/hooks/useCart";
+import { useCartStore } from "@/store/useCartStore";
+import { ShoppingCart, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 const ProductCard = ({ product }: { product: Product }) => {
-  const addItem = useCartStore((state) => state.addItem);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const { mutate: addToCart, isPending } = useAddToCart();
+  const { setCartOpen } = useCartStore();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      imageUrl: product.imageUrl,
-    });
+    e.stopPropagation();
+
+    console.log("Adding to cart:", product.id);
+
+    addToCart(
+      {
+        productId: product.id,
+        quantity: 1,
+      },
+      {
+        onSuccess: () => {
+          console.log("Successfully added to cart");
+          setShowSuccess(true);
+          setCartOpen(true);
+          setTimeout(() => setShowSuccess(false), 2000);
+        },
+        onError: (error) => {
+          console.error("Error adding to cart:", error);
+        },
+      },
+    );
   };
 
   return (
@@ -48,9 +67,23 @@ const ProductCard = ({ product }: { product: Product }) => {
           onClick={handleAddToCart}
           className="w-full hover:bg-gray-200"
           variant="secondary"
+          disabled={isPending || showSuccess}
         >
-          <ShoppingCart className="mr-2 h-4 w-4" />
-          Add to Cart
+          {showSuccess ? (
+            <>
+              <Check className="mr-2 h-4 w-4" /> Added
+            </>
+          ) : isPending ? (
+            <>
+              <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              Adding...
+            </>
+          ) : (
+            <>
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              Add to Cart
+            </>
+          )}
         </Button>
       </div>
     </div>

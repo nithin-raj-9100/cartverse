@@ -3,6 +3,8 @@ import Header from "@/components/Header";
 import Footer from "@/pages/Footer";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { CartSidebar } from "@/components/cart/cart-sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 const Layout = () => {
   const { data, isPending } = useQuery({
@@ -24,13 +26,16 @@ const Layout = () => {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header data={data || { status: "unauthenticated", user: null }} />
-      <main className="flex-1">
-        <Outlet />
-      </main>
-      <Footer />
-    </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen flex-col">
+        <Header data={data || { status: "unauthenticated", user: null }} />
+        <main className="container mx-auto flex-1 px-4">
+          <Outlet />
+        </main>
+        <Footer />
+        <CartSidebar />
+      </div>
+    </SidebarProvider>
   );
 };
 
