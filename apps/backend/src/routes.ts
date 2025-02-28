@@ -4,6 +4,8 @@ import authRoutes from "./modules/auth";
 import { loginRoutes } from "./modules/auth/login";
 import { signupRoutes } from "./modules/auth/signup";
 import { logoutRoutes } from "./modules/auth/logout";
+import cartRoutes from "./modules/cart";
+import { sessionDebugRoutes } from "./modules/debug/session-debug.route";
 
 export async function registerRoutes(app: FastifyInstance) {
   // Auth routes
@@ -14,4 +16,9 @@ export async function registerRoutes(app: FastifyInstance) {
 
   // Product routes
   await app.register(productsRoutes);
+
+  // Cart routes
+  await app.register(cartRoutes, { prefix: "/cart" });
+  // session debug routes
+  await app.register(sessionDebugRoutes);
 }

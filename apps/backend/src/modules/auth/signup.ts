@@ -21,7 +21,7 @@ export function signupRoutes(fastify: FastifyInstance) {
         return reply.status(400).send({ message: "Email already registered " });
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
       const user = await prisma.user.create({
         data: { email, password: hashedPassword, name },

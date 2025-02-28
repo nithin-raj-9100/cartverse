@@ -14,7 +14,7 @@ declare module "fastify" {
   interface FastifyInstance {
     verifySession: (
       request: FastifyRequest,
-      reply: FastifyReply,
+      reply: FastifyReply
     ) => Promise<void>;
   }
 
