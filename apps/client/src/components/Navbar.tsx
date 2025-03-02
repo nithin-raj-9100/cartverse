@@ -20,9 +20,10 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Link, useNavigate } from "react-router";
-import { ShoppingCart } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/slices/auth";
+import { useCartStore } from "@/store/useCartStore";
+import { useCartQuery } from "@/hooks/useCart";
 
 // [ ] Internal Imports
 import { navigation } from "../lib/constants";
@@ -32,6 +33,8 @@ export default function Navbar({ data }: { data: any }) {
   const navigate = useNavigate();
   const { logout: logoutStore } = useAuthStore();
   const queryClient = useQueryClient();
+  const { setCartOpen } = useCartStore();
+  const { data: cart } = useCartQuery();
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
@@ -357,15 +360,21 @@ export default function Navbar({ data }: { data: any }) {
                     </Link>
                   </div>
 
-                  {/* Cart */}
                   <div className="ml-4 flow-root lg:ml-6">
-                    <Link to="#" className="group -m-2 flex items-center p-2">
+                    <Link
+                      to="/"
+                      className="group -m-2 flex items-center p-2"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCartOpen(true);
+                      }}
+                    >
                       <ShoppingBagIcon
                         aria-hidden="true"
                         className="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
                       />
                       <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                        0
+                        {cart?.totalQuantity || 0}
                       </span>
                       <span className="sr-only">items in cart, view bag</span>
                     </Link>
