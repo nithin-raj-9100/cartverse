@@ -60,8 +60,6 @@ export default function Navbar({ data }: { data: any }) {
     logoutMutation.mutate();
   };
 
-  console.log("data from navbar is ", data);
-
   return (
     <div className="bg-white">
       {/* Mobile menu */}
