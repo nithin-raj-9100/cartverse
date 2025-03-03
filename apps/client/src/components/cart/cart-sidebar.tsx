@@ -28,6 +28,10 @@ export function CartSidebar() {
     totalAmount: 0,
   };
 
+  const sortedCartItems = safeCart.cartItems.sort((a, b) =>
+    a.productId.localeCompare(b.productId),
+  );
+
   return (
     <Sheet open={isCartOpen} onOpenChange={setCartOpen}>
       <SheetPortal>
@@ -84,7 +88,7 @@ export function CartSidebar() {
               </div>
             ) : (
               <div className="space-y-4 divide-y p-4">
-                {safeCart.cartItems.map((item) => (
+                {sortedCartItems.map((item) => (
                   <CartItem key={item.productId} item={item} />
                 ))}
               </div>

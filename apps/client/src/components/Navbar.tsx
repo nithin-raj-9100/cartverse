@@ -15,7 +15,6 @@ import {
 } from "@headlessui/react";
 import {
   Bars3Icon,
-  MagnifyingGlassIcon,
   ShoppingBagIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
@@ -24,11 +23,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/slices/auth";
 import { useCartStore } from "@/store/useCartStore";
 import { useCartQuery } from "@/hooks/useCart";
+import { SearchButton } from "@/components/search-dialog";
 
 // [ ] Internal Imports
 import { navigation } from "../lib/constants";
 
-export default function Navbar({ data }: { data: any }) {
+export default function Navbar({ data }: { data: Record<string, unknown> }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { logout: logoutStore } = useAuthStore();
@@ -167,6 +167,7 @@ export default function Navbar({ data }: { data: any }) {
                 {data?.status === "authenticated" ? (
                   <>
                     <p className="-m-2 block p-2 font-medium text-gray-900">
+                      {/* @ts-expect-error FIXIT: */}
                       Hello, {data.user.name}
                     </p>
                     <button
@@ -346,16 +347,7 @@ export default function Navbar({ data }: { data: any }) {
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
                   {/* Search */}
                   <div className="flex lg:ml-6">
-                    <Link
-                      to="#"
-                      className="p-2 text-gray-400 hover:text-gray-500"
-                    >
-                      <span className="sr-only">Search</span>
-                      <MagnifyingGlassIcon
-                        aria-hidden="true"
-                        className="size-6"
-                      />
-                    </Link>
+                    <SearchButton />
                   </div>
 
                   <div className="ml-4 flow-root lg:ml-6">
@@ -381,6 +373,7 @@ export default function Navbar({ data }: { data: any }) {
                   {data?.status === "authenticated" ? (
                     <>
                       <p className="text-sm font-medium text-gray-700">
+                        {/* @ts-expect-error FIXIT: */}
                         Hello, {data.user.name}
                       </p>
                       <button
