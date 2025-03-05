@@ -8,6 +8,7 @@ import Signup from "./pages/signup";
 import AuthRoute from "./pages/AuthRoute";
 import App from "./App";
 import ErrorPage from "./pages/ErrorPage";
+import Search from "./pages/Search";
 
 export const routes = [
   {
@@ -33,6 +34,10 @@ export const routes = [
           {
             path: "product/:id",
             element: <ProductPage />,
+          },
+          {
+            path: "search",
+            element: <Search />,
           },
           {
             path: "login",

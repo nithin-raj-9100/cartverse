@@ -12,6 +12,45 @@ export async function productsRoutes(app: FastifyInstance) {
     }
   });
 
+  app.get("/products/search", async (request, reply) => {
+    console.log("request.query", request.query);
+    const { search } = request.query as { search: string };
+    console.log("search", search);
+    const products = await prisma.product.findMany({
+      where: {
+        name: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+    });
+    console.log("\nproductszzzzzzzzzz\n", products);
+    return reply.send(products);
+  });
+
+  // app.get("/products/search", async (request, reply) => {
+  //   try {
+  //     console.log("request.query", request.query);
+  //     console.log("request.params", request.params);
+  //     console.log("request.body", request.body);
+  //     console.log("request.headers", request.headers);
+
+  //     const { search } = request.query as { search: string };
+  //     const products = await prisma.product.findMany({
+  //       where: {
+  //         name: {
+  //           contains: search,
+  //           mode: "insensitive",
+  //         },
+  //       },
+  //     });
+  //     return reply.send(products);
+  //   } catch (error) {
+  //     console.error("Error fetching products:", error);
+  //     return reply.status(500).send({ error: "Internal Server Error" });
+  //   }
+  // });
+
   app.get("/products/featured", async (request, reply) => {
     try {
       const products = await prisma.product.findMany({

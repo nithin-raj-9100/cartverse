@@ -23,7 +23,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/slices/auth";
 import { useCartStore } from "@/store/useCartStore";
 import { useCartQuery } from "@/hooks/useCart";
-import { SearchButton } from "@/components/search-dialog";
+import { SearchComponent } from "@/components/search";
 
 // [ ] Internal Imports
 import { navigation } from "../lib/constants";
@@ -347,7 +347,7 @@ export default function Navbar({ data }: { data: Record<string, unknown> }) {
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
                   {/* Search */}
                   <div className="flex lg:ml-6">
-                    <SearchButton />
+                    <SearchComponent />
                   </div>
 
                   <div className="ml-4 flow-root lg:ml-6">
