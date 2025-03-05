@@ -48,9 +48,11 @@ export function SearchComponent() {
     };
   }, []);
 
-  const clearInput = () => {
+  const clearInput = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     setSearchTerm("");
-    inputRef.current?.focus();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -73,11 +75,15 @@ export function SearchComponent() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
 
-          {showClearIcon ? (
-            <X
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 cursor-pointer"
+          {showClearIcon || searchTerm ? (
+            <button
+              type="button"
               onClick={clearInput}
-            />
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 cursor-pointer rounded-full p-0.5 hover:bg-gray-100"
+              aria-label="Clear search"
+            >
+              <X size={16} />
+            </button>
           ) : (
             <kbd className="pointer-events-none absolute right-1.5 top-1/2 hidden h-6 -translate-y-1/2 select-none items-center gap-1 rounded border bg-muted px-1.5 text-center font-mono text-xs font-medium opacity-100 xl:flex">
               <span className="text-xs">⌘</span>K
