@@ -13,6 +13,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Category {
+  BAGS
+  DRINKWARE
+  ELECTRONICS
+  FOOTWEAR
+  HEADWEAR
+  HOODIES
+  JACKETS
+  KIDS
+  PETS
+  SHIRTS
+  STICKERS
+}
+
 model User {
   id           String         @id @default(cuid())
   email        String         @unique
@@ -31,6 +45,7 @@ model Product {
   description String
   // Fow now choose Float but also checkout Decimal 
   price       Float
+  category    Category
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   imageUrl    String
