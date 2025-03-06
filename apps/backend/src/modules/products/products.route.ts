@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { prisma } from "../utils/prisma";
+import { Category } from "@prisma/client";
 
 export async function productsRoutes(app: FastifyInstance) {
   app.get("/products", async (request, reply) => {
@@ -13,43 +14,63 @@ export async function productsRoutes(app: FastifyInstance) {
   });
 
   app.get("/products/search", async (request, reply) => {
-    console.log("request.query", request.query);
-    const { search } = request.query as { search: string };
-    console.log("search", search);
-    const products = await prisma.product.findMany({
-      where: {
-        name: {
+    try {
+      const { search, sort, category } = request.query as {
+        search?: string;
+        sort?: string;
+        category?: string;
+      };
+
+      console.log("Search query:", search);
+      console.log("Sort option:", sort);
+      console.log("Category filter:", category);
+
+      const whereConditions: any = {};
+
+      if (search) {
+        whereConditions.name = {
           contains: search,
           mode: "insensitive",
-        },
-      },
-    });
-    console.log("\nproductszzzzzzzzzz\n", products);
-    return reply.send(products);
+        };
+      }
+
+      if (category) {
+        try {
+          const categoryEnum = category.toUpperCase() as Category;
+          whereConditions.category = categoryEnum;
+        } catch (error) {
+          console.error("Invalid category:", category);
+        }
+      }
+
+      let orderBy: any = {};
+
+      switch (sort) {
+        case "newest":
+          orderBy = { createdAt: "desc" };
+          break;
+        case "price_asc":
+          orderBy = { price: "asc" };
+          break;
+        case "price_desc":
+          orderBy = { price: "desc" };
+          break;
+        default:
+          orderBy = { createdAt: "desc" };
+      }
+
+      const products = await prisma.product.findMany({
+        where: whereConditions,
+        orderBy: orderBy,
+      });
+
+      console.log(`Found ${products.length} products matching criteria`);
+      return reply.send(products);
+    } catch (error) {
+      console.error("Error in product search:", error);
+      return reply.status(500).send({ error: "Internal Server Error" });
+    }
   });
-
-  // app.get("/products/search", async (request, reply) => {
-  //   try {
-  //     console.log("request.query", request.query);
-  //     console.log("request.params", request.params);
-  //     console.log("request.body", request.body);
-  //     console.log("request.headers", request.headers);
-
-  //     const { search } = request.query as { search: string };
-  //     const products = await prisma.product.findMany({
-  //       where: {
-  //         name: {
-  //           contains: search,
-  //           mode: "insensitive",
-  //         },
-  //       },
-  //     });
-  //     return reply.send(products);
-  //   } catch (error) {
-  //     console.error("Error fetching products:", error);
-  //     return reply.status(500).send({ error: "Internal Server Error" });
-  //   }
-  // });
 
   app.get("/products/featured", async (request, reply) => {
     try {
@@ -81,6 +102,25 @@ export async function productsRoutes(app: FastifyInstance) {
       return reply.send(product);
     } catch (error) {
       console.error("Error fetching product:", error);
+      return reply.status(500).send({ error: "Internal Server Error" });
+    }
+  });
+
+  app.get("/products/category/:category", async (request, reply) => {
+    try {
+      const { category } = request.params as { category: string };
+
+      const categoryEnum = category.toUpperCase() as Category;
+
+      const products = await prisma.product.findMany({
+        where: {
+          category: categoryEnum,
+        },
+      });
+
+      return reply.send(products);
+    } catch (error) {
+      console.error("Error fetching products by category:", error);
       return reply.status(500).send({ error: "Internal Server Error" });
     }
   });

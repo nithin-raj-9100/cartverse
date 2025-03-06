@@ -1,21 +1,48 @@
-import { useState } from "react";
-import ProductGrid from "@/components/Product/ProductGrid";
-import { Link, useSearchParams } from "react-router";
-import { useProductsSearchQuery } from "@/hooks/useProductsSearchQuery";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router";
+
+// [ ] Internal imports
+import ProductGrid from "@/components/Product/ProductGrid";
+import { useProductsSearchQuery } from "@/hooks/useProductsSearchQuery";
+import { categories, categoryToEnum } from "@/lib/constants";
 
 const Search = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const searchTerm = searchParams.get("q");
-  const [selectedCollection, setSelectedCollection] = useState<string>("All");
-  const [selectedSort, setSelectedSort] = useState<string>("Relevance");
+  const sortParam = searchParams.get("sort") || "";
+  const categoryParam = searchParams.get("category") || "All";
 
-  const collections = [
-    { name: "All", key: 1 },
-    { name: "Shirts", key: 2 },
-    { name: "Pants", key: 3 },
-    { name: "Electronics", key: 4 },
-  ];
+  const getSortNameFromParam = (param: string) => {
+    switch (param) {
+      case "newest":
+        return "Newest";
+      case "price_asc":
+        return "Price: Low to High";
+      case "price_desc":
+        return "Price: High to Low";
+      default:
+        return "Relevance";
+    }
+  };
+
+  const getCategoryNameFromParam = (param: string): string => {
+    if (!param) return "All";
+
+    const category = Object.entries(categoryToEnum).find(
+      ([_, enumValue]) => enumValue === param.toUpperCase(),
+    );
+
+    return category ? category[0] : "All";
+  };
+
+  const [selectedCollection, setSelectedCollection] = useState<string>(
+    getCategoryNameFromParam(categoryParam),
+  );
+  const [selectedSort, setSelectedSort] = useState<string>(
+    getSortNameFromParam(sortParam),
+  );
 
   const sortBy = [
     { name: "Relevance", key: 1, value: "" },
@@ -23,6 +50,15 @@ const Search = () => {
     { name: "Price: Low to High", key: 3, value: "price_asc" },
     { name: "Price: High to Low", key: 4, value: "price_desc" },
   ];
+
+  useEffect(() => {
+    setSelectedSort(getSortNameFromParam(sortParam));
+  }, [sortParam]);
+
+  useEffect(() => {
+    const category = searchParams.get("category") || "All";
+    setSelectedCollection(getCategoryNameFromParam(category));
+  }, [searchParams]);
 
   const getSortValue = (sortName: string) => {
     const sort = sortBy.find((s) => s.name === sortName);
@@ -37,10 +73,29 @@ const Search = () => {
 
   const handleCollectionChange = (collection: string) => {
     setSelectedCollection(collection);
+
+    const newParams = new URLSearchParams(searchParams);
+    if (collection !== "All") {
+      newParams.set("category", categoryToEnum[collection]);
+    } else {
+      newParams.delete("category");
+    }
+
+    navigate(`/search?${newParams.toString()}`);
   };
 
-  const handleSortChange = (sort: string) => {
-    setSelectedSort(sort);
+  const handleSortChange = (sortName: string) => {
+    const sortValue = getSortValue(sortName);
+    setSelectedSort(sortName);
+
+    const newParams = new URLSearchParams(searchParams);
+    if (sortValue) {
+      newParams.set("sort", sortValue);
+    } else {
+      newParams.delete("sort");
+    }
+
+    navigate(`/search?${newParams.toString()}`);
   };
 
   return (
@@ -53,13 +108,13 @@ const Search = () => {
         <div className="flex min-w-[150px] flex-col gap-2 pr-6">
           <div className="text-xl font-semibold">Collections</div>
           <div className="flex flex-col gap-2">
-            {collections.map((collection) => (
+            {categories.map((category) => (
               <div
-                key={collection.key}
-                className={`cursor-pointer hover:text-blue-600 ${selectedCollection === collection.name ? "font-semibold text-blue-600" : ""}`}
-                onClick={() => handleCollectionChange(collection.name)}
+                key={category.key}
+                className={`cursor-pointer hover:text-blue-600 ${selectedCollection === category.name ? "font-semibold text-blue-600" : ""}`}
+                onClick={() => handleCollectionChange(category.name)}
               >
-                {collection.name}
+                {category.name}
               </div>
             ))}
           </div>

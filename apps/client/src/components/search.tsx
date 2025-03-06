@@ -53,12 +53,22 @@ export function SearchComponent() {
     e.stopPropagation();
 
     setSearchTerm("");
+    inputRef.current?.focus();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+      const sortParam = searchParams.get("sort");
+      const queryParams = new URLSearchParams();
+
+      queryParams.set("q", searchTerm.trim());
+
+      if (sortParam) {
+        queryParams.set("sort", sortParam);
+      }
+
+      navigate(`/search?${queryParams.toString()}`);
     }
   };
 

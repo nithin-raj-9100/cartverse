@@ -124,3 +124,48 @@ export const navigation = {
     },
   ],
 };
+
+export const categories = [
+  { key: 0, name: "All" },
+  { key: 1, name: "Bags" },
+  { key: 2, name: "Drinkware" },
+  { key: 3, name: "Electronics" },
+  { key: 4, name: "Footwear" },
+  { key: 5, name: "Headwear" },
+  { key: 6, name: "Hoodies" },
+  { key: 7, name: "Jackets" },
+  { key: 8, name: "Kids" },
+  { key: 9, name: "Pets" },
+  { key: 10, name: "Shirts" },
+  { key: 11, name: "Stickers" },
+];
+
+export const categoryToEnum: Record<string, string> = {
+  All: "",
+  Bags: "BAGS",
+  Drinkware: "DRINKWARE",
+  Electronics: "ELECTRONICS",
+  Footwear: "FOOTWEAR",
+  Headwear: "HEADWEAR",
+  Hoodies: "HOODIES",
+  Jackets: "JACKETS",
+  Kids: "KIDS",
+  Pets: "PETS",
+  Shirts: "SHIRTS",
+  Stickers: "STICKERS",
+};
+
+// export const categoryToEnum: Record<string, string> = {
+//   All: "",
+//   Bags: "BAGS",
+//   Drinkware: "DRINKWARE",
+//   Electronics: "ELECTRONICS",
+//   Footwear: "FOOTWEAR",
+//   Headwear: "HEADWEAR",
+//   Hoodies: "HOODIES",
+//   Jackets: "JACKETS",
+//   Kids: "KIDS",
+//   Pets: "PETS",
+//   Shirts: "SHIRTS",
+//   Stickers: "STICKERS",
+// };
