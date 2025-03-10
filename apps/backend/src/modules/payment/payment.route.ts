@@ -1,10 +1,13 @@
-import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import { FastifyInstance } from "fastify";
+import {
+  createCheckoutSessionHandler,
+  stripeWebhookHandler,
+} from "./payment.controller";
 import { validateSessionToken } from "../utils/auth";
 
-export async function authPlugin(fastify: FastifyInstance) {
-  fastify.decorate(
-    "verifySession",
-    async function (request: FastifyRequest, reply: FastifyReply) {
+export async function paymentRoutes(app: FastifyInstance) {
+  app.post("/checkout", {
+    onRequest: async (request, reply) => {
       try {
         const sessionToken = request.cookies.session_token;
 
@@ -12,7 +15,8 @@ export async function authPlugin(fastify: FastifyInstance) {
           return reply.status(401).send({ message: "Missing session token" });
         }
 
-        const { valid, value } = fastify.unsignCookie(sessionToken);
+        const { valid, value } = app.unsignCookie(sessionToken);
+
         if (!valid || !value) {
           return reply.status(401).send({ message: "Invalid session token" });
         }
@@ -26,13 +30,20 @@ export async function authPlugin(fastify: FastifyInstance) {
 
         request.user = result.user;
       } catch (error) {
-        console.error("Auth verification error:", error);
-        reply.clearCookie("session_token");
+        console.error("Auth error:", error);
         return reply.status(401).send({
           message: "Authentication failed",
           error: error instanceof Error ? error.message : "Unknown error",
         });
       }
-    }
-  );
+    },
+    handler: createCheckoutSessionHandler,
+  });
+
+  app.post("/webhook", {
+    config: {
+      rawBody: true,
+    },
+    handler: stripeWebhookHandler,
+  });
 }
