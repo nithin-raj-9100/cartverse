@@ -7,21 +7,48 @@ import fastifyCors from "@fastify/cors";
 import oauthPlugin from "@fastify/oauth2";
 
 export async function createApp() {
-  const app = Fastify({ logger: true, ignoreTrailingSlash: true });
+  const app = Fastify({
+    logger: true,
+    ignoreTrailingSlash: true,
+    disableRequestLogging: process.env.NODE_ENV === "production",
+  });
+
+  app.addContentTypeParser(
+    "application/json",
+    { parseAs: "string" },
+    (req, body, done) => {
+      try {
+        const json = JSON.parse(body as string);
+        done(null, json);
+      } catch (err) {
+        done(err as Error, undefined);
+      }
+    }
+  );
+
+  app.addHook("preHandler", (request, reply, done) => {
+    if (request.url === "/payment/webhook" && request.method === "POST") {
+      request.rawBody = request.body as unknown as Buffer;
+    }
+    done();
+  });
 
   await app.register(fastifyCookie, {
-    secret: process.env.COOKIE_SECRET,
+    secret: process.env.COOKIE_SECRET || "my_secret",
     hook: "onRequest",
     parseOptions: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
+      path: "/",
     },
   });
 
   await app.register(fastifyCors, {
     origin: "http://localhost:5173",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   });
 
   await app.register(oauthPlugin, {

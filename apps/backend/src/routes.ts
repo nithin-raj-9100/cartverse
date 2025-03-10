@@ -5,7 +5,8 @@ import { loginRoutes } from "./modules/auth/login";
 import { signupRoutes } from "./modules/auth/signup";
 import { logoutRoutes } from "./modules/auth/logout";
 import cartRoutes from "./modules/cart";
-import { sessionDebugRoutes } from "./modules/debug/session-debug.route";
+import paymentRoutes from "./modules/payment";
+import ordersRoutes from "./modules/orders";
 
 export async function registerRoutes(app: FastifyInstance) {
   // Auth routes
@@ -19,6 +20,6 @@ export async function registerRoutes(app: FastifyInstance) {
 
   // Cart routes
   await app.register(cartRoutes, { prefix: "/cart" });
-  // session debug routes
-  await app.register(sessionDebugRoutes);
+  await app.register(paymentRoutes, { prefix: "/payment" });
+  await app.register(ordersRoutes, { prefix: "/orders" });
 }
