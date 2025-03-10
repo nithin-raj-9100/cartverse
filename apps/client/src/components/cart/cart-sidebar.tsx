@@ -3,6 +3,7 @@ import { useCartQuery, useClearCart } from "@/hooks/useCart";
 import { formatCurrency } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CartItem } from "./cart-item";
+import { useNavigate } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Trash2 } from "lucide-react";
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/sheet";
 
 export function CartSidebar() {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { isCartOpen, setCartOpen } = useCartStore();
   const { data: cart, isLoading, isError } = useCartQuery();
@@ -31,6 +33,11 @@ export function CartSidebar() {
   const sortedCartItems = safeCart.cartItems.sort((a, b) =>
     a.productId.localeCompare(b.productId),
   );
+
+  const handleCheckout = () => {
+    setCartOpen(false);
+    navigate("/checkout");
+  };
 
   return (
     <Sheet open={isCartOpen} onOpenChange={setCartOpen}>
@@ -123,7 +130,9 @@ export function CartSidebar() {
                     )}
                     Clear Cart
                   </Button>
-                  <Button size="sm">Checkout</Button>
+                  <Button size="sm" onClick={handleCheckout}>
+                    Checkout
+                  </Button>
                 </div>
               </div>
             </div>

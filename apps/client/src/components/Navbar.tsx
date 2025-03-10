@@ -24,14 +24,15 @@ import { useAuthStore } from "@/store/slices/auth";
 import { useCartStore } from "@/store/useCartStore";
 import { useCartQuery } from "@/hooks/useCart";
 import { SearchComponent } from "@/components/search";
+import { OrdersPopover } from "./orders/OrdersPopover";
 
 // [ ] Internal Imports
 import { navigation } from "../lib/constants";
 
-export default function Navbar({ data }: { data: Record<string, unknown> }) {
+export function Navbar({ data }: { data: Record<string, unknown> }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const { logout: logoutStore } = useAuthStore();
+  const { logout: logoutStore, isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
   const { setCartOpen } = useCartStore();
   const { data: cart } = useCartQuery();
@@ -350,6 +351,13 @@ export default function Navbar({ data }: { data: Record<string, unknown> }) {
                     <SearchComponent />
                   </div>
 
+                  {/* Show orders only for authenticated users */}
+                  {isAuthenticated && (
+                    <div className="ml-2 mr-2">
+                      <OrdersPopover />
+                    </div>
+                  )}
+
                   <div className="ml-4 flow-root lg:ml-6">
                     <Link
                       to="/"
@@ -412,3 +420,5 @@ export default function Navbar({ data }: { data: Record<string, unknown> }) {
     </div>
   );
 }
+
+export default Navbar;

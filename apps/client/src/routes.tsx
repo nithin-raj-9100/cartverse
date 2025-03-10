@@ -9,6 +9,9 @@ import AuthRoute from "./pages/AuthRoute";
 import App from "./App";
 import ErrorPage from "./pages/ErrorPage";
 import Search from "./pages/Search";
+import CheckoutPage from "./pages/Checkout";
+import CheckoutSuccess from "./pages/checkout-success";
+import OrdersPage from "./pages/OrdersPage";
 
 export const routes = [
   {
@@ -34,6 +37,18 @@ export const routes = [
           {
             path: "product/:id",
             element: <ProductPage />,
+          },
+          {
+            path: "checkout",
+            element: <CheckoutPage />,
+          },
+          {
+            path: "checkout/success",
+            element: <CheckoutSuccess />,
+          },
+          {
+            path: "orders",
+            element: <OrdersPage />,
           },
           {
             path: "search",
