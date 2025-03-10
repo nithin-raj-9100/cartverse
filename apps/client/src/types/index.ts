@@ -36,3 +36,36 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface OrderItem {
+  id: string;
+  orderId: string;
+  productId: string;
+  quantity: number;
+  price: number;
+  createdAt: string;
+  updatedAt: string;
+  product: {
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    imageUrl: string;
+    category: string;
+    sizes: string[];
+    colors: string[];
+  };
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  status: "PENDING" | "COMPLETED" | "CANCELLED";
+  paymentStatus?: "PAID" | "REFUNDED" | "FAILED" | null;
+  paymentId?: string | null;
+  totalAmount: number;
+  checkoutSessionId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  orderItems: OrderItem[];
+}
