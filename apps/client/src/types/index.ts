@@ -33,6 +33,7 @@ export interface Product {
   imageUrl: string;
   sizes: string[];
   colors: string[];
+  rating: number;
   createdAt: string;
   updatedAt: string;
 }
