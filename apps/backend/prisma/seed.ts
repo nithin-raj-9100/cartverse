@@ -16,7 +16,7 @@ const getRandomCategory = (): Category => {
 
 const seedProducts = async () => {
   const sizes = ["S", "M", "L", "XL"];
-  const colors = ["red", "blue", "green", "yellow", "black", "white"];
+  const colors = ["red", "blue", "green", "yellow", "black"];
 
   await prisma.product.deleteMany();
 
@@ -28,6 +28,7 @@ const seedProducts = async () => {
     sizes: randomSubset(sizes),
     colors: randomSubset(colors),
     category: getRandomCategory(),
+    rating: parseFloat((Math.random() * 5).toFixed(1)),
   }));
 
   await prisma.product.createMany({

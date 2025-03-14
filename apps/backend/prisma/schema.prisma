@@ -28,33 +28,35 @@ enum Category {
 }
 
 model User {
-  id           String         @id @default(cuid())
-  email        String         @unique
-  name         String
-  password     String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  Session      Session[]
-  OAuthAccount OAuthAccount[]
-  cart         Cart?
-  Order        Order[]
+  id             String           @id @default(cuid())
+  email          String           @unique
+  name           String
+  password       String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  Session        Session[]
+  OAuthAccount   OAuthAccount[]
+  cart           Cart?
+  Order          Order[]
+  RecentlyViewed RecentlyViewed[]
 }
 
 model Product {
-  id          String      @id @default(cuid())
-  name        String
-  description String
+  id             String           @id @default(cuid())
+  name           String
+  description    String
   // Fow now choose Float but also checkout Decimal 
-  price       Float
-  category    Category
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  imageUrl    String
-  sizes       String[]
-  colors      String[]
-  // Add a relation to the Image model
-  cartItems   CartItem[]
-  OrderItem   OrderItem[]
+  price          Float
+  category       Category
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  imageUrl       String
+  sizes          String[]
+  colors         String[]
+  rating         Float            @default(0)
+  cartItems      CartItem[]
+  OrderItem      OrderItem[]
+  RecentlyViewed RecentlyViewed[]
 }
 
 model Cart {
@@ -124,5 +126,18 @@ model OrderItem {
   product   Product  @relation(fields: [productId], references: [id])
 
   @@index([orderId])
+  @@index([productId])
+}
+
+model RecentlyViewed {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  viewedAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+  @@index([userId])
   @@index([productId])
 }
