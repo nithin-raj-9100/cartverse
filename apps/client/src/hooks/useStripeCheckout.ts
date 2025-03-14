@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import { loadStripe } from "@stripe/stripe-js";
 import toast from "react-hot-toast";
 
-// Initialize Stripe with your publishable key
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 const API_URL = "http://localhost:4000";
@@ -49,12 +48,12 @@ export function useStripeCheckout() {
         throw new Error("No checkout URL returned");
       }
 
-      if (url.includes("/checkout/success?session_id=mock_")) {
-        toast.success("Using mock checkout for development", {
-          duration: 3000,
-          icon: "🧪",
-        });
-      }
+      // if (url.includes("/checkout/success?session_id=mock_")) {
+      //   toast.success("Using mock checkout for development", {
+      //     duration: 3000,
+      //     icon: "🧪",
+      //   });
+      // }
 
       window.location.href = url;
     },
