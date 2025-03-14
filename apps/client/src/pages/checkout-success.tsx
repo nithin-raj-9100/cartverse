@@ -3,6 +3,8 @@ import { Link, useSearchParams } from "react-router";
 import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
+import { wait } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 export default function CheckoutSuccess() {
   const [searchParams] = useSearchParams();
@@ -11,8 +13,15 @@ export default function CheckoutSuccess() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    toast.success("Payment Completed Successfully!", {
+      duration: 4000,
+      icon: "🎉",
+    });
+
     if (sessionId) {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      wait(1500).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["cart"] });
+      });
     }
   }, [sessionId, queryClient]);
 

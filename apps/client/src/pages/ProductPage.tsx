@@ -1,11 +1,17 @@
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getProduct } from "@/api/products";
-import { Loader2 } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+import { useEffect, useRef } from "react";
+import { useRecentlyViewedProducts } from "@/hooks/useRecentlyViewedProducts";
+import { useAuthStore } from "@/store/slices/auth";
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuthStore();
+  const { addToRecentlyViewed } = useRecentlyViewedProducts();
+  const hasTrackedView = useRef(false);
 
   const {
     data: product,
@@ -16,6 +22,27 @@ const ProductPage = () => {
     queryFn: () => getProduct(id!),
     enabled: !!id,
   });
+
+  useEffect(() => {
+    if (id && user && !hasTrackedView.current) {
+      hasTrackedView.current = true;
+      addToRecentlyViewed.mutate(id);
+    }
+  }, [id, user]);
+
+  const renderRatingStars = (rating: number) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      if (i <= rating) {
+        stars.push(
+          <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />,
+        );
+      } else {
+        stars.push(<Star key={i} className="h-4 w-4 text-gray-300" />);
+      }
+    }
+    return <div className="flex">{stars}</div>;
+  };
 
   if (isLoading) {
     return (
@@ -57,6 +84,14 @@ const ProductPage = () => {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               {product.name}
             </h1>
+
+            <div className="mt-2 flex items-center">
+              {renderRatingStars(product.rating)}
+              <span className="ml-2 text-sm text-gray-500">
+                {product.rating.toFixed(1)} rating
+              </span>
+            </div>
+
             <div className="mt-3">
               <p className="text-3xl tracking-tight text-gray-900">
                 ${product.price.toFixed(2)}

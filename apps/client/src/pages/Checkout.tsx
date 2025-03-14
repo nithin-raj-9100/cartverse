@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { useSearchParams, Link } from "react-router";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { wait } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 const CheckoutPage = () => {
   const { data: cart, isLoading, isError } = useCartQuery();
@@ -11,12 +13,16 @@ const CheckoutPage = () => {
   const [searchParams] = useSearchParams();
   const canceled = searchParams.get("canceled") === "true";
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cart?.cartItems.length) {
       const checkoutItems = cart.cartItems.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
       }));
+
+      toast.loading("Processing your payment...", { id: "payment-processing" });
+      await wait(1500);
+      toast.dismiss("payment-processing");
 
       initiateCheckout(checkoutItems);
     }
