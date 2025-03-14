@@ -2,7 +2,7 @@ import { Product } from "@/types";
 import { Link } from "react-router";
 import { useAddToCart } from "@/hooks/useCart";
 import { useCartStore } from "@/store/useCartStore";
-import { ShoppingCart, Check } from "lucide-react";
+import { ShoppingCart, Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -36,6 +36,20 @@ const ProductCard = ({ product }: { product: Product }) => {
     );
   };
 
+  const renderRatingStars = (rating: number) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      if (i <= rating) {
+        stars.push(
+          <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />,
+        );
+      } else {
+        stars.push(<Star key={i} className="h-3 w-3 text-gray-300" />);
+      }
+    }
+    return <div className="flex">{stars}</div>;
+  };
+
   return (
     <div className="group h-full rounded-lg border bg-card p-3">
       <Link to={`/product/${product.id}`} className="block">
@@ -52,6 +66,12 @@ const ProductCard = ({ product }: { product: Product }) => {
               <h3 className="text-sm font-medium text-foreground">
                 {product.name}
               </h3>
+              <div className="mt-1 flex items-center">
+                {renderRatingStars(product.rating)}
+                <span className="ml-1 text-xs text-muted-foreground">
+                  ({product.rating.toFixed(1)})
+                </span>
+              </div>
               <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                 {product.description}
               </p>
