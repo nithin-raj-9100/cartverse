@@ -22,9 +22,9 @@ declare module "fastify" {
     user?: {
       id: string;
       email: string;
-      name: string;
-      createdAt: Date;
-      updatedAt: Date;
+      name: string | null;
+      createdAt?: Date | undefined;
+      updatedAt?: Date | undefined;
     };
   }
 }

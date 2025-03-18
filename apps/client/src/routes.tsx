@@ -12,6 +12,7 @@ import Search from "./pages/Search";
 import CheckoutPage from "./pages/Checkout";
 import CheckoutSuccess from "./pages/checkout-success";
 import OrdersPage from "./pages/OrdersPage";
+import ProfilePage from "./pages/ProfilePage";
 
 export const routes = [
   {
@@ -49,6 +50,10 @@ export const routes = [
           {
             path: "orders",
             element: <OrdersPage />,
+          },
+          {
+            path: "profile",
+            element: <ProfilePage />,
           },
           {
             path: "search",

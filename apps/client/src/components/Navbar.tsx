@@ -17,6 +17,10 @@ import {
   Bars3Icon,
   ShoppingBagIcon,
   XMarkIcon,
+  UserCircleIcon,
+  ClipboardDocumentListIcon,
+  UserIcon,
+  ArrowRightOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 import { Link, useNavigate } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -31,6 +35,7 @@ import { navigation } from "../lib/constants";
 
 export function Navbar({ data }: { data: Record<string, unknown> }) {
   const [open, setOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { logout: logoutStore, isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
@@ -167,16 +172,39 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
               <div className="flow-root">
                 {data?.status === "authenticated" ? (
                   <>
-                    <p className="-m-2 block p-2 font-medium text-gray-900">
-                      {/* @ts-expect-error FIXIT: */}
-                      Hello, {data.user.name}
-                    </p>
-                    <button
-                      onClick={handleLogout}
-                      className="-m-2 block p-2 font-medium text-gray-900"
+                    <div className="border-b border-gray-100 pb-3">
+                      <p className="-m-2 block p-2 font-medium text-gray-900">
+                        {/* @ts-expect-error FIXIT: */}
+                        Hello, {data.user.name}
+                      </p>
+                      <p className="-m-2 block p-2 text-sm text-gray-500">
+                        {/* @ts-expect-error FIXIT: */}
+                        {data.user.email || ""}
+                      </p>
+                    </div>
+                    <Link
+                      to="/orders"
+                      className="-m-2 flex items-center p-2 text-gray-500 hover:text-gray-900"
                     >
-                      Logout
-                    </button>
+                      <ClipboardDocumentListIcon className="mr-3 h-5 w-5 text-gray-400" />
+                      Your Orders
+                    </Link>
+                    <Link
+                      to="/profile"
+                      className="-m-2 flex items-center p-2 text-gray-500 hover:text-gray-900"
+                    >
+                      <UserIcon className="mr-3 h-5 w-5 text-gray-400" />
+                      Your Profile
+                    </Link>
+                    <div className="mt-2 border-t border-gray-100 pt-2">
+                      <button
+                        onClick={handleLogout}
+                        className="-m-2 flex w-full items-center p-2 text-left font-medium text-gray-900"
+                      >
+                        <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-gray-400" />
+                        Logout
+                      </button>
+                    </div>
                   </>
                 ) : (
                   <>
@@ -257,27 +285,6 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                             {/* Reduced padding and gap values */}
                             <div className="grid grid-cols-2 gap-x-4 gap-y-4 py-2">
                               <div className="col-start-2 grid grid-cols-2 gap-x-4">
-                                {/* {category.featured.map((item) => (
-                                  <div
-                                    key={item.name}
-                                    className="group relative text-base sm:text-sm"
-                                  > 
-                                 <div className="aspect-h-1 aspect-w-1 overflow-hidden rounded-lg">
-                                      <img
-                                        src={item.imageSrc}
-                                        alt={item.imageAlt}
-                                        className="h-full w-full object-contain object-center hover:opacity-75"
-                                      />
-                                    </div>
-                                    <a
-                                      href={item.href}
-                                      className="mt-4 block font-medium text-gray-900"
-                                    >
-                                      {item.name}
-                                    </a>
-                                  </div>
-                                ))} */}
-
                                 {category.featured.map((item) => (
                                   <div
                                     key={item.name}
@@ -351,13 +358,7 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                     <SearchComponent />
                   </div>
 
-                  {/* Show orders only for authenticated users */}
-                  {isAuthenticated && (
-                    <div className="ml-2 mr-2">
-                      <OrdersPopover />
-                    </div>
-                  )}
-
+                  {/* Cart */}
                   <div className="ml-4 flow-root lg:ml-6">
                     <Link
                       to="/"
@@ -378,19 +379,70 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                     </Link>
                   </div>
 
+                  {/* User Profile Menu */}
                   {data?.status === "authenticated" ? (
-                    <>
-                      <p className="text-sm font-medium text-gray-700">
-                        {/* @ts-expect-error FIXIT: */}
-                        Hello, {data.user.name}
-                      </p>
-                      <button
-                        onClick={handleLogout}
-                        className="text-sm font-medium text-gray-700 hover:text-gray-800"
-                      >
-                        Logout
-                      </button>
-                    </>
+                    <div className="relative ml-4">
+                      <Popover className="relative">
+                        {({ open }) => (
+                          <>
+                            <PopoverButton
+                              className={`flex items-center space-x-2 rounded-full p-1 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-800 focus:outline-none ${open ? "bg-gray-100 ring-2 ring-indigo-500 ring-opacity-50" : ""}`}
+                            >
+                              <UserCircleIcon className="h-6 w-6" />
+                              <span className="max-w-[100px] truncate">
+                                {/* @ts-expect-error FIXIT: */}
+                                {data.user.name}
+                              </span>
+                              <svg
+                                className={`ml-1 h-4 w-4 transition-transform ${open ? "rotate-180 transform" : ""}`}
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </PopoverButton>
+                            <PopoverPanel className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                              <div className="border-b border-gray-100 px-4 py-3">
+                                <p className="text-sm">Signed in as</p>
+                                <p className="truncate text-sm font-medium text-gray-900">
+                                  {/* @ts-expect-error FIXIT: */}
+                                  {data.user.email || data.user.name}
+                                </p>
+                              </div>
+                              <Link
+                                to="/orders"
+                                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              >
+                                <ClipboardDocumentListIcon className="mr-3 h-5 w-5 text-gray-400" />
+                                Your Orders
+                              </Link>
+                              <Link
+                                to="/profile"
+                                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              >
+                                <UserIcon className="mr-3 h-5 w-5 text-gray-400" />
+                                Your Profile
+                              </Link>
+                              <div className="border-t border-gray-100">
+                                <button
+                                  onClick={handleLogout}
+                                  className="flex w-full items-center px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                                >
+                                  <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-gray-400" />
+                                  Logout
+                                </button>
+                              </div>
+                            </PopoverPanel>
+                          </>
+                        )}
+                      </Popover>
+                    </div>
                   ) : (
                     <>
                       <Link
