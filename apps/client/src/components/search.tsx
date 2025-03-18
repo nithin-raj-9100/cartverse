@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { Search, X, Loader2 } from "lucide-react";
-import { Link } from "react-router";
 
 // [ ] Internal Imports
 import { Input } from "./ui/input";
@@ -340,9 +339,9 @@ export function SearchComponent() {
 
                           return (
                             <li
-                              ref={(el) =>
-                                (suggestionRefs.current[flattenedIndex] = el)
-                              }
+                              ref={(el) => {
+                                suggestionRefs.current[flattenedIndex] = el;
+                              }}
                               key={suggestion.id}
                               id={`suggestion-${flattenedIndex}`}
                               role="option"
@@ -397,9 +396,9 @@ export function SearchComponent() {
                         ? "bg-gray-100"
                         : "hover:bg-gray-50",
                     )}
-                    ref={(el) =>
-                      (suggestionRefs.current[flattenedSuggestions.length] = el)
-                    }
+                    ref={(el) => {
+                      suggestionRefs.current[flattenedSuggestions.length] = el;
+                    }}
                     id={`suggestion-${flattenedSuggestions.length}`}
                     role="option"
                     aria-selected={
