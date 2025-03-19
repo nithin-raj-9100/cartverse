@@ -29,6 +29,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useCartQuery } from "@/hooks/useCart";
 import { SearchComponent } from "@/components/search";
 import { OrdersPopover } from "./orders/OrdersPopover";
+import { cn } from "@/lib/utils";
 
 // [ ] Internal Imports
 import { navigation } from "../lib/constants";
@@ -283,7 +284,7 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
 
                       <PopoverPanel
                         transition
-                        className="absolute inset-x-0 top-full text-sm text-gray-500 transition data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
+                        className="absolute inset-x-0 top-full z-50 text-sm text-gray-500 transition data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
                       >
                         {/* Short element to hide top of shadow */}
                         <div
@@ -400,7 +401,12 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                               onClick={() =>
                                 setProfileMenuOpen(!profileMenuOpen)
                               }
-                              className={`flex items-center space-x-2 rounded-full p-1 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-800 focus:outline-none ${open ? "bg-gray-100 ring-2 ring-indigo-500 ring-opacity-50" : ""}`}
+                              className={cn(
+                                "flex items-center space-x-2 rounded-full p-1 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-800 focus:outline-none",
+                                open
+                                  ? "bg-gray-100 ring-2 ring-indigo-500 ring-opacity-50"
+                                  : "",
+                              )}
                             >
                               <UserCircleIcon className="h-6 w-6" />
                               <span className="max-w-[100px] truncate">
@@ -408,7 +414,10 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                                 {data.user.name}
                               </span>
                               <svg
-                                className={`ml-1 h-4 w-4 transition-transform ${open ? "rotate-180 transform" : ""}`}
+                                className={cn(
+                                  "ml-1 h-4 w-4 transition-transform",
+                                  open ? "rotate-180 transform" : "",
+                                )}
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 20 20"
                                 fill="currentColor"
@@ -421,7 +430,7 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                                 />
                               </svg>
                             </PopoverButton>
-                            <PopoverPanel className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <PopoverPanel className="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                               <div className="border-b border-gray-100 px-4 py-3">
                                 <p className="text-sm">Signed in as</p>
                                 <p className="truncate text-sm font-medium text-gray-900">
