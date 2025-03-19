@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
+import { useEffect } from "react";
 
 interface AuthRouteProps {
   children: React.ReactNode;
@@ -8,7 +9,6 @@ interface AuthRouteProps {
 
 const AuthRoute = ({ children, requireAuth = false }: AuthRouteProps) => {
   const navigate = useNavigate();
-
   const { data, isLoading } = useQuery({
     queryKey: ["auth"],
     queryFn: async () => {
@@ -19,33 +19,20 @@ const AuthRoute = ({ children, requireAuth = false }: AuthRouteProps) => {
     },
   });
 
-  if (isLoading) return <div>Loading...</div>;
-
   const isAuthenticated = data?.status === "authenticated";
 
-  if (requireAuth && !isAuthenticated) {
-    navigate("/login", { replace: true });
-  }
+  useEffect(() => {
+    if (!isLoading) {
+      if (requireAuth && !isAuthenticated) {
+        navigate("/login", { replace: true });
+      }
+      if (!requireAuth && isAuthenticated) {
+        navigate("/", { replace: true });
+      }
+    }
+  }, [isLoading, isAuthenticated, navigate, requireAuth]);
 
-  if (!requireAuth && isAuthenticated) {
-    navigate("/", { replace: true });
-  }
-
-  // useEffect(() => {
-  //   if (data?.status === "authenticated") {
-  //     navigate("/", { replace: true });
-  //   }
-  // }, [data, navigate]);
-
-  // useEffect(() => {
-  //   if (data?.status === "unauthenticated") {
-  //     navigate("/login");
-  //   }
-  // }, [data, navigate]);
-
-  // if (data?.status === "authenticated") {
-  //   return null;
-  // }
+  if (isLoading) return <div>Loading...</div>;
 
   return <>{children}</>;
 };
