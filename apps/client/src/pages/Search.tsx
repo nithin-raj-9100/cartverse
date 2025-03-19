@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Loader2, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-
+import { useDebounce } from "use-debounce";
 // [ ] Internal imports
 import ProductGrid from "@/components/Product/ProductGrid";
 import { useProductsSearchQuery } from "@/hooks/useProductsSearchQuery";
@@ -67,12 +67,14 @@ const Search = () => {
   );
 
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
+  const [debouncedPriceRange] = useDebounce(priceRange, 1000);
   const [selectedColors, setSelectedColors] = useState<string[]>(colorsParam);
   const [selectedSizes, setSelectedSizes] = useState<string[]>(sizesParam);
   const [selectedRating, setSelectedRating] = useState<number>(
     minRatingParam ? parseInt(minRatingParam) : 0,
   );
   const [filterExpanded, setFilterExpanded] = useState(true);
+  const [autoApplyFilters, setAutoApplyFilters] = useState(false);
 
   const { recentlyViewedProducts, isLoading: isLoadingRecent } =
     useRecentlyViewedProducts();
@@ -163,6 +165,23 @@ const Search = () => {
     }
   }, [minPriceParam, maxPriceParam, colorsParam, sizesParam, minRatingParam]);
 
+  useEffect(() => {
+    if (autoApplyFilters) {
+      const newParams = new URLSearchParams(searchParams);
+      if (debouncedPriceRange[0] > 0) {
+        newParams.set("minPrice", debouncedPriceRange[0].toString());
+      } else {
+        newParams.delete("minPrice");
+      }
+      if (debouncedPriceRange[1] < 1000) {
+        newParams.set("maxPrice", debouncedPriceRange[1].toString());
+      } else {
+        newParams.delete("maxPrice");
+      }
+      navigate(`/search?${newParams.toString()}`);
+    }
+  }, [debouncedPriceRange, autoApplyFilters, searchParams, navigate]);
+
   const getSortValue = (sortName: string) => {
     const sort = sortBy.find((s) => s.name === sortName);
     return sort?.value || "";
@@ -195,6 +214,7 @@ const Search = () => {
 
   const handlePriceRangeChange = (values: number[]) => {
     setPriceRange([values[0], values[1]]);
+    setAutoApplyFilters(true);
   };
 
   const handleApplyFilters = () => {
@@ -467,7 +487,7 @@ const Search = () => {
             </Accordion>
 
             <Button onClick={handleApplyFilters} className="w-full">
-              Apply Filters
+              Apply All Filters
             </Button>
           </div>
         </div>

@@ -2,6 +2,12 @@ import { FastifyInstance } from "fastify";
 import { prisma } from "../utils/prisma";
 import { Category } from "@prisma/client";
 
+const searchRequestCache = new Map<
+  string,
+  { timestamp: number; result: any }
+>();
+const CACHE_TTL_MS = 1000;
+
 export async function productsRoutes(app: FastifyInstance) {
   app.get("/products", async (request, reply) => {
     try {
@@ -34,6 +40,25 @@ export async function productsRoutes(app: FastifyInstance) {
         colors?: string;
         sizes?: string;
       };
+
+      const cacheKey = JSON.stringify({
+        search,
+        sort,
+        category,
+        minPrice,
+        maxPrice,
+        minRating,
+        colors,
+        sizes,
+      });
+
+      const cachedResponse = searchRequestCache.get(cacheKey);
+      const now = Date.now();
+
+      if (cachedResponse && now - cachedResponse.timestamp < CACHE_TTL_MS) {
+        console.log("Returning cached search results");
+        return reply.send(cachedResponse.result);
+      }
 
       console.log("Search query:", search);
       console.log("Sort option:", sort);
@@ -139,10 +164,28 @@ export async function productsRoutes(app: FastifyInstance) {
       const facets = await getFacets(whereConditions);
 
       console.log(`Found ${products.length} products matching criteria`);
-      return reply.send({
+
+      const result = {
         products,
         facets,
+      };
+
+      searchRequestCache.set(cacheKey, {
+        timestamp: now,
+        result,
       });
+
+      if (searchRequestCache.size > 100) {
+        const keysToDelete = [];
+        for (const [key, value] of searchRequestCache.entries()) {
+          if (now - value.timestamp > CACHE_TTL_MS * 5) {
+            keysToDelete.push(key);
+          }
+        }
+        keysToDelete.forEach((key) => searchRequestCache.delete(key));
+      }
+
+      return reply.send(result);
     } catch (error) {
       console.error("Error in product search:", error);
       return reply.status(500).send({ error: "Internal Server Error" });

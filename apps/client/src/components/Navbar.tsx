@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import {
   Dialog,
   DialogBackdrop,
@@ -22,7 +22,7 @@ import {
   UserIcon,
   ArrowRightOnRectangleIcon,
 } from "@heroicons/react/24/outline";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/slices/auth";
 import { useCartStore } from "@/store/useCartStore";
@@ -37,10 +37,21 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
   const [open, setOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { logout: logoutStore, isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
   const { setCartOpen } = useCartStore();
   const { data: cart } = useCartQuery();
+
+  useEffect(() => {
+    setProfileMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    return () => {
+      setProfileMenuOpen(false);
+    };
+  }, [navigate]);
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
@@ -382,10 +393,13 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                   {/* User Profile Menu */}
                   {data?.status === "authenticated" ? (
                     <div className="relative ml-4">
-                      <Popover className="relative">
-                        {({ open }) => (
+                      <Popover>
+                        {({ open, close }) => (
                           <>
                             <PopoverButton
+                              onClick={() =>
+                                setProfileMenuOpen(!profileMenuOpen)
+                              }
                               className={`flex items-center space-x-2 rounded-full p-1 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-800 focus:outline-none ${open ? "bg-gray-100 ring-2 ring-indigo-500 ring-opacity-50" : ""}`}
                             >
                               <UserCircleIcon className="h-6 w-6" />
@@ -418,6 +432,7 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                               <Link
                                 to="/orders"
                                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                onClick={() => close()}
                               >
                                 <ClipboardDocumentListIcon className="mr-3 h-5 w-5 text-gray-400" />
                                 Your Orders
@@ -425,13 +440,17 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                               <Link
                                 to="/profile"
                                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                onClick={() => close()}
                               >
                                 <UserIcon className="mr-3 h-5 w-5 text-gray-400" />
                                 Your Profile
                               </Link>
                               <div className="border-t border-gray-100">
                                 <button
-                                  onClick={handleLogout}
+                                  onClick={() => {
+                                    close();
+                                    handleLogout();
+                                  }}
                                   className="flex w-full items-center px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                                 >
                                   <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-gray-400" />

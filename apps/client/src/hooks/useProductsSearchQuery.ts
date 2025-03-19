@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { categoryToEnum } from "@/lib/constants";
+import { useDebounce } from "use-debounce";
 
 export interface ProductSearchParams {
   searchTerm: string | null;
@@ -22,6 +23,9 @@ export const useProductsSearchQuery = ({
   colors,
   sizes,
 }: ProductSearchParams) => {
+  const [debouncedMinPrice] = useDebounce(minPrice, 800);
+  const [debouncedMaxPrice] = useDebounce(maxPrice, 800);
+
   return useQuery({
     queryKey: [
       "products",
@@ -29,8 +33,8 @@ export const useProductsSearchQuery = ({
       searchTerm,
       collection,
       sortBy,
-      minPrice,
-      maxPrice,
+      debouncedMinPrice,
+      debouncedMaxPrice,
       minRating,
       colors,
       sizes,
@@ -47,9 +51,9 @@ export const useProductsSearchQuery = ({
 
       if (sortBy) params.append("sort", sortBy);
 
-      if (minPrice) params.append("minPrice", minPrice);
+      if (debouncedMinPrice) params.append("minPrice", debouncedMinPrice);
 
-      if (maxPrice) params.append("maxPrice", maxPrice);
+      if (debouncedMaxPrice) params.append("maxPrice", debouncedMaxPrice);
 
       if (minRating) params.append("minRating", minRating);
 
@@ -71,5 +75,6 @@ export const useProductsSearchQuery = ({
       return data;
     },
     enabled: true,
+    staleTime: 30000,
   });
 };

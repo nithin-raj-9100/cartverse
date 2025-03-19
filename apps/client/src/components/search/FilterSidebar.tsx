@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useDebounce } from "use-debounce";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -25,6 +26,7 @@ export function FilterSidebar({
   maxPrice,
 }: FilterSidebarProps) {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
+  const [debouncedPriceRange] = useDebounce(priceRange, 1500);
 
   const { data: productStats } = useQuery({
     queryKey: ["productStats"],
@@ -46,12 +48,13 @@ export function FilterSidebar({
     }
   }, [productStats, minPrice, maxPrice]);
 
+  // Apply debounced price range changes
+  useEffect(() => {
+    onPriceRangeChange(debouncedPriceRange[0], debouncedPriceRange[1]);
+  }, [debouncedPriceRange, onPriceRangeChange]);
+
   const handlePriceChange = (value: number[]) => {
     setPriceRange([value[0], value[1]]);
-  };
-
-  const handlePriceChangeCommitted = () => {
-    onPriceRangeChange(priceRange[0], priceRange[1]);
   };
 
   const ratings = [5, 4, 3, 2, 1];
@@ -98,7 +101,6 @@ export function FilterSidebar({
             max={productStats?.priceRange?.max || 1000}
             step={1}
             onValueChange={handlePriceChange}
-            onValueCommit={handlePriceChangeCommitted}
             className="mb-6"
           />
           <div className="flex items-center justify-between">
