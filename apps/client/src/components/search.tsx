@@ -120,47 +120,72 @@ export function SearchComponent() {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (searchTerm.trim().length < 2) {
-        setSuggestions([]);
-        return;
-      }
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-      setIsLoading(true);
-      try {
-        const res = await fetch(
-          `http://localhost:4000/products/suggestions?query=${encodeURIComponent(searchTerm)}`,
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setSuggestions(data);
+  const fetchSuggestions = async (query: string) => {
+    if (!query.trim()) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const res = await fetch(
+        `http://localhost:4000/products/suggestions?query=${encodeURIComponent(query)}`,
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setSuggestions(data);
+        if (data.length > 0) {
+          setShowSuggestions(true);
         }
-      } catch (error) {
-        console.error("Error fetching suggestions:", error);
-      } finally {
-        setIsLoading(false);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const debounceTimer = setTimeout(() => {
-      if (searchTerm) {
-        fetchSuggestions();
-      } else {
-        setSuggestions([]);
-      }
-    }, 300);
+  useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    if (!searchTerm.trim()) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      setIsLoading(false);
+      return;
+    }
+
+    if (searchTerm.trim().length === 1) {
+      fetchSuggestions(searchTerm);
+      return;
+    }
+
+    if (searchTerm.trim().length > 1) {
+      debounceTimerRef.current = setTimeout(() => {
+        fetchSuggestions(searchTerm);
+      }, 500);
+    }
 
     return () => {
-      clearTimeout(debounceTimer);
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
     };
   }, [searchTerm]);
 
   const handleFocus = () => {
     setIsFocused(true);
     setShowClearIcon(true);
-    if (searchTerm.length >= 2) {
+
+    if (searchTerm.trim()) {
       setShowSuggestions(true);
+      fetchSuggestions(searchTerm);
     }
   };
 
@@ -172,7 +197,9 @@ export function SearchComponent() {
       dropdownRef.current &&
       !dropdownRef.current.contains(e.relatedTarget as Node)
     ) {
-      setTimeout(() => setShowSuggestions(false), 200);
+      setTimeout(() => {
+        setShowSuggestions(false);
+      }, 200);
     }
   };
 
@@ -182,7 +209,12 @@ export function SearchComponent() {
 
     setSearchTerm("");
     setSuggestions([]);
-    inputRef.current?.focus();
+    setShowSuggestions(false);
+    setIsLoading(false);
+
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
   };
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
@@ -299,7 +331,6 @@ export function SearchComponent() {
           role="listbox"
           className={cn(
             "absolute z-50 mt-2 max-h-80 w-[calc(100%+4rem)] -translate-x-8 overflow-y-auto overflow-x-hidden rounded-md border border-gray-200 bg-white shadow-lg",
-            !suggestions.length && !isLoading && "hidden",
             "md:w-[calc(100%+2rem)] md:-translate-x-4",
           )}
         >
@@ -310,7 +341,7 @@ export function SearchComponent() {
             </div>
           ) : (
             <>
-              {suggestions.length > 0 && (
+              {suggestions.length > 0 && searchTerm.trim() && (
                 <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
                   <p className="text-sm text-gray-600">
                     Found <span className="font-medium">{totalProducts}</span>{" "}

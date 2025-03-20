@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Loader2, Star, ChevronDown, ChevronUp } from "lucide-react";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams, useParams } from "react-router";
 import { useDebounce } from "use-debounce";
 // [ ] Internal imports
 import ProductGrid from "@/components/Product/ProductGrid";
@@ -34,7 +34,7 @@ interface FacetData {
   priceRange: { min: number; max: number };
   colors: ColorFacet[];
   sizes: { name: string; count: number }[];
-  ratings: any[];
+  ratings: Array<{ rating: number; count: number }>;
 }
 
 interface RecentlyViewedProduct {
@@ -43,15 +43,18 @@ interface RecentlyViewedProduct {
   imageUrl: string;
   price: number;
   rating: number;
-  [key: string]: any;
+  [key: string]: string | number | boolean | null;
 }
 
 const Search = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { category: urlCategory } = useParams();
   const searchTerm = searchParams.get("q");
   const sortParam = searchParams.get("sort") || "";
-  const categoryParam = searchParams.get("category") || "All";
+  const categoryParam =
+    searchParams.get("category") ||
+    (urlCategory ? urlCategory.toUpperCase() : "All");
   const minPriceParam = searchParams.get("minPrice");
   const maxPriceParam = searchParams.get("maxPrice");
   const minRatingParam = searchParams.get("minRating");
@@ -143,9 +146,24 @@ const Search = () => {
   }, [sortParam]);
 
   useEffect(() => {
-    const category = searchParams.get("category") || "All";
-    setSelectedCollection(getCategoryNameFromParam(category));
-  }, [searchParams]);
+    if (urlCategory) {
+      const categoryEnum = urlCategory.toUpperCase();
+      const category = Object.entries(categoryToEnum).find(
+        ([_, enumValue]) => enumValue === categoryEnum,
+      );
+
+      if (category) {
+        setSelectedCollection(category[0]);
+        const newParams = new URLSearchParams(searchParams);
+        if (!newParams.has("category")) {
+          newParams.set("category", categoryEnum);
+          navigate(`/search/${urlCategory}?${newParams.toString()}`, {
+            replace: true,
+          });
+        }
+      }
+    }
+  }, [urlCategory, navigate, searchParams]);
 
   useEffect(() => {
     if (minPriceParam && maxPriceParam) {
@@ -200,10 +218,28 @@ const Search = () => {
 
   const handleCollectionChange = (collection: string) => {
     setSelectedCollection(collection);
-    updateSearchParams(
-      "category",
-      collection !== "All" ? categoryToEnum[collection] : null,
-    );
+    const categoryValue =
+      collection !== "All" ? categoryToEnum[collection] : null;
+
+    if (collection !== "All") {
+      const categoryPath = Object.keys(categoryToEnum)
+        .find((key) => categoryToEnum[key] === categoryValue)
+        ?.toLowerCase();
+
+      if (categoryPath) {
+        const newParams = new URLSearchParams(searchParams);
+        if (categoryValue) {
+          newParams.set("category", categoryValue);
+        }
+        navigate(`/search/${categoryPath}?${newParams.toString()}`);
+      } else {
+        updateSearchParams("category", categoryValue);
+      }
+    } else {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("category");
+      navigate(`/search?${newParams.toString()}`);
+    }
   };
 
   const handleSortChange = (sortName: string) => {

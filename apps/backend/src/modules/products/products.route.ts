@@ -196,7 +196,7 @@ export async function productsRoutes(app: FastifyInstance) {
     try {
       const { query } = request.query as { query: string };
 
-      if (!query || query.length < 2) {
+      if (!query || query.trim() === "") {
         return reply.send([]);
       }
 
