@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
+import { RecentlyViewedScroll } from "@/components/Product/RecentlyViewedScroll";
 
 const features = [
   {
@@ -190,6 +191,10 @@ export default function Landing() {
             <Button asChild variant="outline" size="lg">
               <Link to="/products">View All Products</Link>
             </Button>
+          </div>
+
+          <div className="mt-24">
+            <RecentlyViewedScroll />
           </div>
         </div>
       </section>
