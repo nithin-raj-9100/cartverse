@@ -6,13 +6,13 @@ export const navigation = {
       featured: [
         {
           name: "T-Shirts",
-          href: "#",
+          href: "/search/tshirts",
           imageSrc: "/images/t-shirt-color-black.png",
           imageAlt: "Spiral patterned t-shirt in multiple colors",
         },
         {
           name: "Hoodies",
-          href: "#",
+          href: "/search/hoodies",
           imageSrc: "/images/hoodie-1.png",
           imageAlt: "Hoodie with dark blue and light gray stripes",
         },
@@ -22,10 +22,10 @@ export const navigation = {
           id: "men-clothing",
           name: "Clothing",
           items: [
-            { name: "T-Shirts", href: "tshirts" },
-            { name: "Hoodies", href: "hoodies" },
-            { name: "Jackets", href: "jackets" },
-            { name: "Shoes", href: "shoes" },
+            { name: "T-Shirts", href: "/search/tshirts" },
+            { name: "Hoodies", href: "/search/hoodies" },
+            { name: "Jackets", href: "/search/jackets" },
+            { name: "Shoes", href: "/search/shoes" },
           ],
         },
       ],
@@ -36,13 +36,13 @@ export const navigation = {
       featured: [
         {
           name: "Dresses",
-          href: "#",
+          href: "/search/dresses",
           imageSrc: "/images/t-shirt-women-black-3-resized.jpg",
           imageAlt: "Elegant women's dress",
         },
         {
           name: "Handbags",
-          href: "#",
+          href: "/search/bags",
           imageSrc: "/images/handbag-1.webp",
           imageAlt: "Stylish handbag",
         },
@@ -52,11 +52,11 @@ export const navigation = {
           id: "women-clothing",
           name: "Clothing",
           items: [
-            { name: "Dresses", href: "dresses" },
-            { name: "T-Shirts", href: "tshirts" },
-            { name: "Hoodies", href: "hoodies" },
-            { name: "Jackets", href: "jackets" },
-            { name: "Shoes", href: "shoes" },
+            { name: "Dresses", href: "/search/dresses" },
+            { name: "T-Shirts", href: "/search/tshirts" },
+            { name: "Hoodies", href: "/search/hoodies" },
+            { name: "Jackets", href: "/search/jackets" },
+            { name: "Shoes", href: "/search/shoes" },
           ],
         },
       ],
@@ -67,13 +67,13 @@ export const navigation = {
       featured: [
         {
           name: "Adorable Onesies",
-          href: "#",
+          href: "/search/onesies",
           imageSrc: "/images/baby-onesie-beige-1.png",
           imageAlt: "Cute beige baby onesie",
         },
         {
           name: "Stylish Baby Caps",
-          href: "#",
+          href: "/search/caps",
           imageSrc: "/images/baby-cap-black.png",
           imageAlt: "Black baby cap",
         },
@@ -83,8 +83,8 @@ export const navigation = {
           id: "baby-clothing",
           name: "Clothing",
           items: [
-            { name: "Onesies", href: "onesies" },
-            { name: "Caps", href: "caps" },
+            { name: "Onesies", href: "/search/onesies" },
+            { name: "Caps", href: "/search/caps" },
           ],
         },
       ],
@@ -95,13 +95,13 @@ export const navigation = {
       featured: [
         {
           name: "Fashionable Hats",
-          href: "#",
+          href: "/search/hats",
           imageSrc: "/images/cowboy-hat-black-1.png",
           imageAlt: "Stylish cowboy hat",
         },
         {
           name: "Hand Bags",
-          href: "#",
+          href: "/search/bags",
           imageSrc: "/images/handbag-1.webp",
           imageAlt: "Sleek black bag",
         },
@@ -111,14 +111,14 @@ export const navigation = {
           id: "headwear",
           name: "Headwear",
           items: [
-            { name: "Cowboy Hats", href: "hats" },
-            { name: "Caps", href: "caps" },
+            { name: "Cowboy Hats", href: "/search/hats" },
+            { name: "Caps", href: "/search/caps" },
           ],
         },
         {
           id: "bags-accessories",
           name: "Bags & More",
-          items: [{ name: "Bags", href: "bags" }],
+          items: [{ name: "Bags", href: "/search/bags" }],
         },
       ],
     },

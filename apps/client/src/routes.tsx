@@ -60,6 +60,10 @@ export const routes = [
             element: <Search />,
           },
           {
+            path: "search/:category",
+            element: <Search />,
+          },
+          {
             path: "login",
             element: (
               <AuthRoute requireAuth={false}>
