@@ -616,7 +616,7 @@ const Search = () => {
                             {renderRatingStars(product.rating)}
                           </div>
                           <div className="font-medium text-blue-600">
-                            ${product.price.toFixed(2)}
+                            ${Math.floor(product.price)}
                           </div>
                         </div>
                       </Link>

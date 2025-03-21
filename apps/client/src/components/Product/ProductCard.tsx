@@ -77,7 +77,7 @@ const ProductCard = ({ product }: { product: Product }) => {
               </p>
             </div>
             <p className="text-sm font-medium text-foreground">
-              ${product.price.toFixed(2)}
+              ${Math.floor(product.price)}
             </p>
           </div>
         </div>

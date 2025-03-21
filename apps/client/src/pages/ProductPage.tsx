@@ -94,7 +94,7 @@ const ProductPage = () => {
 
             <div className="mt-3">
               <p className="text-3xl tracking-tight text-gray-900">
-                ${product.price.toFixed(2)}
+                ${Math.floor(product.price)}
               </p>
             </div>
             <div className="mt-6">

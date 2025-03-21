@@ -33,7 +33,7 @@ export function RecentlyViewedScroll() {
                 <div className="p-4">
                   <h3 className="mb-2 text-lg font-semibold">{product.name}</h3>
                   <p className="mb-2 text-gray-600">
-                    ${product.price.toFixed(2)}
+                    ${Math.floor(product.price)}
                   </p>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-500">
