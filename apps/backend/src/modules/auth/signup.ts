@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import bcrypt from "bcrypt";
 import { prisma } from "../utils/prisma";
 import { generateSessionToken, createSession } from "../utils/auth";
+import { mergeGuestCartWithUser } from "../cart/cart.service";
 
 export interface SignUpBody {
   email: string;
@@ -26,6 +27,18 @@ export function signupRoutes(fastify: FastifyInstance) {
       const user = await prisma.user.create({
         data: { email, password: hashedPassword, name },
       });
+
+      const guestId = request.cookies.guest_id;
+
+      if (guestId && guestId.startsWith("guest_")) {
+        try {
+          await mergeGuestCartWithUser(guestId, user.id);
+        } catch (error) {
+          fastify.log.error(
+            `Failed to merge guest cart during signup: ${error}`
+          );
+        }
+      }
 
       return reply.status(201).send({
         user: {

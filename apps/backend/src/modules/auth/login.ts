@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import bcrypt from "bcrypt";
 import { prisma } from "../utils/prisma";
 import { generateSessionToken, createSession } from "../utils/auth";
+import { mergeGuestCartWithUser } from "../cart/cart.service";
 
 export interface LoginBody {
   email: string;
@@ -18,7 +19,7 @@ export function loginRoutes(fastify: FastifyInstance) {
       return reply.status(401).send({ message: "Invalid credentials" });
     }
 
-    // TODO: should check if user is already logged in using session token
+    const guestId = request.cookies.guest_id;
 
     const token = generateSessionToken();
     const session = await createSession(token, user.id);
@@ -31,6 +32,15 @@ export function loginRoutes(fastify: FastifyInstance) {
       expires: session.expiresAt,
       signed: true,
     });
+
+    if (guestId && guestId.startsWith("guest_")) {
+      try {
+        await mergeGuestCartWithUser(guestId, user.id);
+        reply.clearCookie("guest_id", { path: "/" });
+      } catch (error) {
+        fastify.log.error(`Failed to merge guest cart: ${error}`);
+      }
+    }
 
     return reply.send({
       user: {

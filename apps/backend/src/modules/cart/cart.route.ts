@@ -16,7 +16,28 @@ export async function cartRoutes(app: FastifyInstance) {
       const signedSessionToken = request.cookies.session_token;
 
       if (!signedSessionToken) {
-        return reply.status(401).send({ message: "No session found" });
+        const guestId =
+          request.cookies.guest_id ||
+          `guest_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+        if (!request.cookies.guest_id) {
+          reply.setCookie("guest_id", guestId, {
+            path: "/",
+            httpOnly: true,
+            sameSite: "lax",
+            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          });
+        }
+
+        request.user = {
+          id: guestId,
+          email: "guest@example.com",
+          name: "Guest User",
+          isGuest: true,
+        };
+
+        console.log("Guest user:", guestId);
+        return;
       }
 
       const { valid, value: sessionToken } =
@@ -47,6 +68,7 @@ export async function cartRoutes(app: FastifyInstance) {
         name: session.users.name,
         createdAt: session.users.createdAt,
         updatedAt: session.users.updatedAt,
+        isGuest: false,
       };
 
       console.log("Authenticated user:", session.users.id);

@@ -36,7 +36,7 @@ export async function addToCartHandler(
     request.log.error(error);
     return reply.status(500).send({
       message: "Failed to add item to cart",
-      error: "Error occured fooooo",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 }
@@ -67,7 +67,7 @@ export async function getCartHandler(
     request.log.error(error);
     return reply.status(500).send({
       message: "Failed to retrieve cart items",
-      error: "Error occured fooooo",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 }
@@ -103,7 +103,7 @@ export async function updateCartItemHandler(
     request.log.error(error);
     return reply.status(500).send({
       message: "Failed to update cart item",
-      error: "Error occured fooooo",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 }
@@ -130,7 +130,7 @@ export async function removeCartItemHandler(
     request.log.error(error);
     return reply.status(500).send({
       message: "Failed to remove cart item",
-      error: "Error occured fooooo",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 }
@@ -156,7 +156,7 @@ export async function clearCartHandler(
     request.log.error(error);
     return reply.status(500).send({
       message: "Failed to clear cart",
-      error: "Error occured fooooo",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 }

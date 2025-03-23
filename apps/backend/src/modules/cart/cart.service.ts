@@ -1,7 +1,27 @@
 import { AddToCartRequest } from "./cart.schema";
 import { prisma } from "../utils/prisma";
 
+function isGuestId(userId: string): boolean {
+  return userId.startsWith("guest_");
+}
+
 export async function getCartByUserId(userId: string) {
+  if (isGuestId(userId)) {
+    return prisma.cart.findFirst({
+      where: {
+        guestId: userId,
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+  }
+
+  // Regular user flow
   return prisma.cart.findUnique({
     where: { userId },
     include: {
@@ -15,6 +35,22 @@ export async function getCartByUserId(userId: string) {
 }
 
 export async function createCart(userId: string) {
+  if (isGuestId(userId)) {
+    return prisma.cart.create({
+      data: {
+        guestId: userId,
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+  }
+
+  // Regular user flow
   return prisma.cart.create({
     data: {
       userId,
@@ -153,6 +189,58 @@ export async function clearCart(userId: string) {
 
   await prisma.cartItem.deleteMany({
     where: { cartId: cart.id },
+  });
+
+  return getCartByUserId(userId);
+}
+
+export async function mergeGuestCartWithUser(guestId: string, userId: string) {
+  const guestCart = await getCartByUserId(guestId);
+
+  if (!guestCart || guestCart.items.length === 0) {
+    return null;
+  }
+
+  let userCart = await getCartByUserId(userId);
+
+  if (!userCart) {
+    userCart = await createCart(userId);
+  }
+
+  for (const item of guestCart.items) {
+    const existingItem = userCart.items.find(
+      (cartItem) => cartItem.productId === item.productId
+    );
+
+    if (existingItem) {
+      await prisma.cartItem.update({
+        where: { id: existingItem.id },
+        data: {
+          quantity: existingItem.quantity + item.quantity,
+          updatedAt: new Date(),
+        },
+      });
+    } else {
+      await prisma.cartItem.create({
+        data: {
+          cart: {
+            connect: { id: userCart.id },
+          },
+          product: {
+            connect: { id: item.productId },
+          },
+          quantity: item.quantity,
+        },
+      });
+    }
+  }
+
+  await prisma.cartItem.deleteMany({
+    where: { cartId: guestCart.id },
+  });
+
+  await prisma.cart.delete({
+    where: { id: guestCart.id },
   });
 
   return getCartByUserId(userId);
