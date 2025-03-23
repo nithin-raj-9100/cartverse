@@ -2,9 +2,10 @@ import { useCartQuery } from "@/hooks/useCart";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
-import { useSearchParams, Link } from "react-router";
+import { useSearchParams, Link, useNavigate } from "react-router";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { wait } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 
 const CheckoutPage = () => {
@@ -12,8 +13,23 @@ const CheckoutPage = () => {
   const { mutate: initiateCheckout, isPending } = useStripeCheckout();
   const [searchParams] = useSearchParams();
   const canceled = searchParams.get("canceled") === "true";
+  const navigate = useNavigate();
+  const { data: authData } = useAuth();
+  const isAuthenticated = authData?.status === "authenticated";
 
   const handleCheckout = async () => {
+    if (!isAuthenticated) {
+      if (cart?.cartItems.length) {
+        localStorage.setItem("pendingCart", JSON.stringify(cart.cartItems));
+        toast.error("Please sign up or log in to complete your purchase", {
+          duration: 5000,
+          icon: "🔐",
+        });
+        navigate("/signup");
+      }
+      return;
+    }
+
     if (cart?.cartItems.length) {
       const checkoutItems = cart.cartItems.map((item) => ({
         productId: item.productId,
@@ -58,6 +74,23 @@ const CheckoutPage = () => {
           <AlertTitle>Payment canceled</AlertTitle>
           <AlertDescription>
             Your payment was canceled. You can try again when you're ready.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {!isAuthenticated && (
+        <Alert className="mb-6">
+          <AlertTitle>Authentication Required</AlertTitle>
+          <AlertDescription>
+            Please{" "}
+            <Link to="/signup" className="font-medium underline">
+              sign up
+            </Link>{" "}
+            or{" "}
+            <Link to="/login" className="font-medium underline">
+              log in
+            </Link>{" "}
+            to complete your purchase.
           </AlertDescription>
         </Alert>
       )}

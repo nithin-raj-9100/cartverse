@@ -4,10 +4,11 @@ import { formatCurrency } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CartItem } from "./cart-item";
 import { useNavigate } from "react-router";
-
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/useAuth";
+import toast from "react-hot-toast";
 import {
   Sheet,
   SheetContent,
@@ -22,6 +23,8 @@ export function CartSidebar() {
   const { isCartOpen, setCartOpen } = useCartStore();
   const { data: cart, isLoading, isError } = useCartQuery();
   const { mutate: clearCart, isPending: isClearing } = useClearCart();
+  const { data: authData } = useAuth();
+  const isAuthenticated = authData?.status === "authenticated";
 
   const safeCart = cart || {
     cartItems: [],
@@ -35,8 +38,18 @@ export function CartSidebar() {
   );
 
   const handleCheckout = () => {
-    setCartOpen(false);
-    navigate("/checkout");
+    if (isAuthenticated) {
+      setCartOpen(false);
+      navigate("/checkout");
+    } else {
+      setCartOpen(false);
+      localStorage.setItem("pendingCart", JSON.stringify(safeCart.cartItems));
+      toast.error("Please sign up or log in to complete your purchase", {
+        duration: 5000,
+        icon: "🔐",
+      });
+      navigate("/signup");
+    }
   };
 
   return (

@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { login } from "@/lib/api";
 import { useAuthStore } from "@/store/slices/auth";
+import { useAddToCart } from "@/hooks/useCart";
 import toast from "react-hot-toast";
 
 export function LoginForm({
@@ -22,12 +23,35 @@ export function LoginForm({
   const navigate = useNavigate();
   const { login: loginStore } = useAuthStore();
   const queryClient = useQueryClient();
+  const { mutate: addToCart } = useAddToCart();
 
   const mutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
       loginStore(data.user, data.user.id);
       queryClient.invalidateQueries({ queryKey: ["auth"] });
+
+      const pendingCart = localStorage.getItem("pendingCart");
+      if (pendingCart) {
+        try {
+          const cartItems = JSON.parse(pendingCart);
+          if (Array.isArray(cartItems) && cartItems.length > 0) {
+            toast.success("Restoring your cart items...", { duration: 3000 });
+
+            cartItems.forEach((item) => {
+              addToCart({
+                productId: item.productId,
+                quantity: item.quantity,
+              });
+            });
+
+            localStorage.removeItem("pendingCart");
+          }
+        } catch (error) {
+          console.error("Error processing pending cart:", error);
+        }
+      }
+
       navigate("/");
     },
     onError: (error: Error) => {

@@ -10,15 +10,22 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signup } from "@/lib/api";
+import { login } from "@/lib/api";
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/store/slices/auth";
+import { useAddToCart } from "@/hooks/useCart";
+import toast from "react-hot-toast";
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { login: loginStore } = useAuthStore();
+  const { mutate: addToCart } = useAddToCart();
 
   const [form, setForm] = useState({
     name: "",
@@ -28,17 +35,60 @@ export function SignupForm({
   });
 
   const mutation = useMutation({
-    // handle mutation
     mutationFn: signup,
-    onSuccess: () => {
-      navigate("/login");
+    onSuccess: (data) => {
+      login({
+        email: form.email,
+        password: form.password,
+      })
+        .then((loginData) => {
+          loginStore(loginData.user, loginData.user.id);
+          queryClient.invalidateQueries({ queryKey: ["auth"] });
+
+          const pendingCart = localStorage.getItem("pendingCart");
+          if (pendingCart) {
+            try {
+              const cartItems = JSON.parse(pendingCart);
+              if (Array.isArray(cartItems) && cartItems.length > 0) {
+                toast.success("Adding your items to cart...", {
+                  duration: 3000,
+                });
+
+                cartItems.forEach((item) => {
+                  addToCart({
+                    productId: item.productId,
+                    quantity: item.quantity,
+                  });
+                });
+
+                localStorage.removeItem("pendingCart");
+              }
+            } catch (error) {
+              console.error("Error processing pending cart:", error);
+            }
+          }
+
+          if (pendingCart) {
+            navigate("/checkout");
+          } else {
+            navigate("/");
+          }
+        })
+        .catch((error) => {
+          console.error("Auto login after signup failed:", error);
+          toast.success("Account created! Please log in to continue.");
+          navigate("/login");
+        });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to create account");
     },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
@@ -55,10 +105,6 @@ export function SignupForm({
       ...prev,
       [name]: value,
     }));
-  };
-
-  const handleGitHubSignup = () => {
-    window.location.href = "http://localhost:4000/auth/github";
   };
 
   return (
