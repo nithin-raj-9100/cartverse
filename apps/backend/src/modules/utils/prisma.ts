@@ -1,7 +1,22 @@
-import { PrismaClient, User } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
-export const prisma = new PrismaClient({
-  log: ["query", "info", "warn"],
-});
+declare global {
+  var prisma: PrismaClient | undefined;
+}
+
+export const prisma =
+  global.prisma ||
+  new PrismaClient({
+    log: ["query", "info", "warn"],
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  global.prisma = prisma;
+}
 
 export default prisma;
