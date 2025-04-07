@@ -3,6 +3,7 @@ import { Product } from "@/types";
 import { Link } from "react-router";
 import { ShoppingBag } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { formatCurrency } from "@/lib/utils";
 
 export function RecentlyViewedScroll() {
   const { recentlyViewedProducts, isLoading } = useRecentlyViewedProducts();
@@ -33,7 +34,7 @@ export function RecentlyViewedScroll() {
                 <div className="p-4">
                   <h3 className="mb-2 text-lg font-semibold">{product.name}</h3>
                   <p className="mb-2 text-gray-600">
-                    ${Math.floor(product.price)}
+                    {formatCurrency(product.price)}
                   </p>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-500">

@@ -12,6 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useOrdersQuery } from "@/hooks/useOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/slices/auth";
+import { formatCurrency } from "@/lib/utils";
 
 export function OrdersPopover() {
   const { isAuthenticated } = useAuthStore();
@@ -89,8 +90,8 @@ export function OrdersPopover() {
                         })}
                       </p>
                       <p className="mt-1 text-xs">
-                        {order.orderItems.length} items • $
-                        {order.totalAmount.toFixed(2)}
+                        {order.orderItems.length} items •
+                        {formatCurrency(order.totalAmount)}
                       </p>
                     </div>
                   </div>

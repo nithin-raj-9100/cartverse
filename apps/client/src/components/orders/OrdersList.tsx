@@ -27,6 +27,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { formatCurrency } from "@/lib/utils";
 
 export function OrdersList() {
   const { data: orders, isLoading, error } = useOrdersQuery();
@@ -137,7 +138,7 @@ export function OrdersList() {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold">
-                      ${order.totalAmount.toFixed(2)}
+                      {formatCurrency(order.totalAmount)}
                     </p>
                   </div>
                 </div>
@@ -207,13 +208,13 @@ export function OrdersList() {
                             </Link>
                           </div>
                           <div className="col-span-2 text-center">
-                            ${item.price.toFixed(2)}
+                            {formatCurrency(item.price)}
                           </div>
                           <div className="col-span-2 text-center">
                             {item.quantity}
                           </div>
                           <div className="col-span-2 text-right font-medium">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            {formatCurrency(item.price * item.quantity)}
                           </div>
                         </div>
                       </div>
@@ -222,7 +223,7 @@ export function OrdersList() {
                     <div className="flex justify-between border-t bg-muted/30 px-4 py-3">
                       <span className="font-medium">Total</span>
                       <span className="font-semibold">
-                        ${order.totalAmount.toFixed(2)}
+                        {formatCurrency(order.totalAmount)}
                       </span>
                     </div>
                   </div>

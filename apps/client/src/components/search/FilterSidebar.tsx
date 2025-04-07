@@ -5,6 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { categories, categoryToEnum } from "@/lib/constants";
+import { formatCurrency } from "@/lib/utils";
 
 interface FilterSidebarProps {
   selectedCategory: string;
@@ -104,8 +105,8 @@ export function FilterSidebar({
             className="mb-6"
           />
           <div className="flex items-center justify-between">
-            <span className="text-sm">${priceRange[0]}</span>
-            <span className="text-sm">${priceRange[1]}</span>
+            <span className="text-sm">{formatCurrency(priceRange[0])}</span>
+            <span className="text-sm">{formatCurrency(priceRange[1])}</span>
           </div>
         </div>
       </div>

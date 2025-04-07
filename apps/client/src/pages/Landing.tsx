@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { RecentlyViewedScroll } from "@/components/Product/RecentlyViewedScroll";
+import { formatCurrency } from "@/lib/utils";
 
 const features = [
   {
@@ -174,7 +175,9 @@ export default function Landing() {
                       <h3 className="mb-2 text-lg font-semibold">
                         {product.name}
                       </h3>
-                      <p className="mb-2 text-gray-600">${product.price}</p>
+                      <p className="mb-2 text-gray-600">
+                        {formatCurrency(product.price)}
+                      </p>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-500">
                           {product.category}

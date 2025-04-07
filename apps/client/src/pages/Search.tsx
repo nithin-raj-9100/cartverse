@@ -16,6 +16,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { formatCurrency } from "@/lib/utils";
 
 interface CategoryFacet {
   category: string;
@@ -431,9 +432,9 @@ const Search = () => {
                       onValueChange={handlePriceRangeChange}
                       className="mt-6"
                     />
-                    <div className="mt-2 flex justify-between text-sm">
-                      <div>${priceRange[0]}</div>
-                      <div>${priceRange[1]}</div>
+                    <div className="flex items-center justify-between py-2 text-xs font-medium">
+                      <div>{formatCurrency(priceRange[0])}</div>
+                      <div>{formatCurrency(priceRange[1])}</div>
                     </div>
                   </div>
                 </AccordionContent>
@@ -615,8 +616,8 @@ const Search = () => {
                           <div className="flex items-center gap-1 text-sm text-gray-500">
                             {renderRatingStars(product.rating)}
                           </div>
-                          <div className="font-medium text-blue-600">
-                            ${Math.floor(product.price)}
+                          <div className="mt-2 font-medium text-gray-900">
+                            {formatCurrency(product.price)}
                           </div>
                         </div>
                       </Link>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useRecentlyViewedStore } from "@/store/useRecentlyViewedStore";
 import { Product } from "@/types";
+import { formatCurrency } from "@/lib/utils";
 
 export function RecentlyViewedProducts() {
   const { recentlyViewed } = useRecentlyViewedStore();
@@ -52,7 +53,7 @@ export function RecentlyViewedProducts() {
               <div className="p-2">
                 <p className="truncate text-xs">{product.name}</p>
                 <p className="text-xs font-semibold">
-                  ${product.price.toFixed(2)}
+                  {formatCurrency(product.price)}
                 </p>
               </div>
             </div>

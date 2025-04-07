@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { useSearchParams, Link, useNavigate } from "react-router";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { wait } from "@/lib/utils";
+import { wait, formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
@@ -198,7 +198,7 @@ const CheckoutPage = () => {
                     </div>
                   </div>
                   <p className="font-medium">
-                    ${directCheckoutAmount.toFixed(2)}
+                    {formatCurrency(directCheckoutAmount)}
                   </p>
                 </div>
               )}
@@ -227,7 +227,7 @@ const CheckoutPage = () => {
                       </div>
                     </div>
                     <p className="font-medium">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      {formatCurrency(item.price * item.quantity)}
                     </p>
                   </div>
                 ))}
@@ -236,10 +236,9 @@ const CheckoutPage = () => {
                 <div className="flex justify-between">
                   <span className="font-medium">Subtotal</span>
                   <span className="font-medium">
-                    $
                     {isDirectCheckout
-                      ? directCheckoutAmount.toFixed(2)
-                      : cart?.totalAmount.toFixed(2)}
+                      ? formatCurrency(directCheckoutAmount)
+                      : formatCurrency(cart?.totalAmount || 0)}
                   </span>
                 </div>
               </div>
@@ -257,11 +256,11 @@ const CheckoutPage = () => {
                 Processing...
               </>
             ) : (
-              `Pay $${
+              `Pay ${formatCurrency(
                 isDirectCheckout
-                  ? directCheckoutAmount.toFixed(2)
-                  : cart?.totalAmount.toFixed(2)
-              }`
+                  ? directCheckoutAmount
+                  : cart?.totalAmount || 0,
+              )}`
             )}
           </Button>
         </div>

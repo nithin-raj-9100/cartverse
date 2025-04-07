@@ -6,12 +6,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number): string {
-  const displayAmount = amount >= 100 ? amount / 100 : amount;
+  const displayAmount = amount / 100;
 
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: displayAmount % 1 === 0 ? 0 : 2,
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(displayAmount);
 }
