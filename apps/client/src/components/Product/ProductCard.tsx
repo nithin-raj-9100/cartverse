@@ -5,6 +5,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { ShoppingCart, Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { formatCurrency } from "@/lib/utils";
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [showSuccess, setShowSuccess] = useState(false);
@@ -53,7 +54,12 @@ const ProductCard = ({ product }: { product: Product }) => {
   return (
     <div className="group h-full rounded-lg border bg-card p-3">
       <Link to={`/product/${product.id}`} className="block">
-        <div className="aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
+        <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
+          {product.comparePrice && product.comparePrice > product.price && (
+            <div className="absolute left-2 top-2 z-10 rounded-full bg-red-600 px-2 py-1 text-xs font-bold text-white shadow-sm">
+              SALE
+            </div>
+          )}
           <img
             src={product.imageUrl}
             alt={product.name}
@@ -76,9 +82,24 @@ const ProductCard = ({ product }: { product: Product }) => {
                 {product.description}
               </p>
             </div>
-            <p className="text-sm font-medium text-foreground">
-              ${Math.floor(product.price)}
-            </p>
+            <div className="text-right">
+              <p className="text-sm font-semibold text-foreground">
+                {formatCurrency(product.price)}
+              </p>
+              {product.comparePrice && product.comparePrice > product.price && (
+                <div className="flex flex-col items-end">
+                  <p className="text-xs text-muted-foreground line-through">
+                    {formatCurrency(product.comparePrice)}
+                  </p>
+                  <p className="animate-pulse text-xs font-medium text-red-500">
+                    {Math.round(
+                      (1 - product.price / product.comparePrice) * 100,
+                    )}
+                    % off
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </Link>

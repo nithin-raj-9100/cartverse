@@ -34,6 +34,7 @@ export interface Product {
   sizes: string[];
   colors: string[];
   rating: number;
+  comparePrice?: number;
   createdAt: string;
   updatedAt: string;
   category: string;

@@ -8,6 +8,7 @@ interface Product {
   description: string;
   price: number;
   imageUrl: string;
+  comparePrice?: number;
 }
 
 interface ProductCardProps {
@@ -30,9 +31,22 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.description}
         </p>
         <div className="mt-3 flex items-center justify-between">
-          <span className="text-lg font-medium">
-            {formatCurrency(product.price)}
-          </span>
+          <div>
+            <span className="text-lg font-medium">
+              {formatCurrency(product.price)}
+            </span>
+            {product.comparePrice && product.comparePrice > product.price && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground line-through">
+                  {formatCurrency(product.comparePrice)}
+                </span>
+                <span className="text-xs font-medium text-red-500">
+                  {Math.round((1 - product.price / product.comparePrice) * 100)}
+                  % off
+                </span>
+              </div>
+            )}
+          </div>
           <AddToCartButton
             productId={product.id}
             variant="secondary"
