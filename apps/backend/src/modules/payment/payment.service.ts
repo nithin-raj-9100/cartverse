@@ -11,7 +11,7 @@ export async function createMockCheckoutSession(
   customerEmail?: string
 ) {
   try {
-    const cartItems = await prisma.cartItem.findMany({
+    let cartItems = await prisma.cartItem.findMany({
       where: {
         cart: {
           userId: userId,
@@ -24,6 +24,26 @@ export async function createMockCheckoutSession(
         product: true,
       },
     });
+
+    if (cartItems.length === 0) {
+      const products = await prisma.product.findMany({
+        where: {
+          id: {
+            in: items.map((item) => item.productId),
+          },
+        },
+      });
+
+      // @ts-expect-error TODO: Fix this type error
+      cartItems = products.map((product) => {
+        const matchedItem = items.find((item) => item.productId === product.id);
+        return {
+          productId: product.id,
+          quantity: matchedItem?.quantity || 1,
+          product,
+        };
+      });
+    }
 
     const totalAmount = cartItems.reduce(
       (sum, item) => sum + item.product.price * item.quantity,
@@ -87,7 +107,7 @@ export async function createCheckoutSession(
       return createMockCheckoutSession(userId, items, customerEmail);
     }
 
-    const cartItems = await prisma.cartItem.findMany({
+    let cartItems = await prisma.cartItem.findMany({
       where: {
         cart: {
           userId: userId,
@@ -100,6 +120,26 @@ export async function createCheckoutSession(
         product: true,
       },
     });
+
+    if (cartItems.length === 0) {
+      const products = await prisma.product.findMany({
+        where: {
+          id: {
+            in: items.map((item) => item.productId),
+          },
+        },
+      });
+
+      // @ts-expect-error TODO: Fix this type error
+      cartItems = products.map((product) => {
+        const matchedItem = items.find((item) => item.productId === product.id);
+        return {
+          productId: product.id,
+          quantity: matchedItem?.quantity || 1,
+          product,
+        };
+      });
+    }
 
     const lineItems = cartItems.map((item) => {
       const matchedItem = items.find((i) => i.productId === item.productId);
