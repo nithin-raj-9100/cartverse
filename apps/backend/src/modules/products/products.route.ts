@@ -100,11 +100,11 @@ export async function productsRoutes(app: FastifyInstance) {
         whereConditions.price = {};
 
         if (minPrice) {
-          whereConditions.price.gte = parseFloat(minPrice);
+          whereConditions.price.gte = parseFloat(minPrice) * 100;
         }
 
         if (maxPrice) {
-          whereConditions.price.lte = parseFloat(maxPrice);
+          whereConditions.price.lte = parseFloat(maxPrice) * 100;
         }
       }
 

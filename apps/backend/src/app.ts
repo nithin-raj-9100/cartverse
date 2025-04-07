@@ -7,10 +7,15 @@ import fastifyCors from "@fastify/cors";
 import oauthPlugin from "@fastify/oauth2";
 
 export async function createApp() {
+  const isProduction = process.env.NODE_ENV === "production";
+  const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+
   const app = Fastify({
     logger: true,
     ignoreTrailingSlash: true,
-    disableRequestLogging: process.env.NODE_ENV === "production",
+    disableRequestLogging: isProduction,
+    // Set a path prefix for routes when deployed to Vercel
+    // prefix: isProduction ? "/api" : "",
   });
 
   app.addContentTypeParser(
@@ -38,14 +43,14 @@ export async function createApp() {
     hook: "onRequest",
     parseOptions: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       sameSite: "lax",
       path: "/",
     },
   });
 
   await app.register(fastifyCors, {
-    origin: "http://localhost:5173",
+    origin: clientUrl,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -66,7 +71,9 @@ export async function createApp() {
       },
     },
     startRedirectPath: "/auth/github",
-    callbackUri: "http://localhost:4000/auth/github/callback",
+    callbackUri: isProduction
+      ? `${process.env.CLIENT_URL}/api/auth/github/callback`
+      : "http://localhost:4000/auth/github/callback",
     scope: ["read:user", "user:email"],
   });
 
