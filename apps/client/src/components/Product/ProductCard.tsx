@@ -52,7 +52,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   };
 
   return (
-    <div className="group h-full rounded-lg border bg-card p-3">
+    <div className="group flex h-full flex-col rounded-lg border bg-card p-3">
       <Link to={`/product/${product.id}`} className="block">
         <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
           {product.comparePrice && product.comparePrice > product.price && (
@@ -103,7 +103,7 @@ const ProductCard = ({ product }: { product: Product }) => {
           </div>
         </div>
       </Link>
-      <div className="mt-4 border-t border-border pt-3">
+      <div className="mt-auto border-t border-border pt-4">
         <Button
           onClick={handleAddToCart}
           className="w-full hover:bg-gray-200"
