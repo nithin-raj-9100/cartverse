@@ -52,6 +52,27 @@ export function LoginForm({
         }
       }
 
+      const buyNowProduct = localStorage.getItem("buyNowProduct");
+      if (buyNowProduct) {
+        try {
+          const product = JSON.parse(buyNowProduct);
+          if (product && product.productId) {
+            toast.success("Taking you to checkout...", { duration: 3000 });
+
+            setTimeout(() => {
+              navigate(
+                `/checkout?product=${product.productId}&quantity=${product.quantity || 1}`,
+              );
+            }, 500);
+
+            localStorage.removeItem("buyNowProduct");
+            return;
+          }
+        } catch (error) {
+          console.error("Error processing buy now product:", error);
+        }
+      }
+
       navigate("/");
     },
     onError: (error: Error) => {
