@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getProduct } from "@/api/products";
 import { Loader2, Star, ShieldCheck, Truck } from "lucide-react";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+import { BuyNowButton } from "@/components/cart/buy-now-button";
 import { useEffect, useRef } from "react";
 import { useRecentlyViewedProducts } from "@/hooks/useRecentlyViewedProducts";
 import { useAuthStore } from "@/store/slices/auth";
@@ -180,12 +181,13 @@ const ProductPage = () => {
                 >
                   Add to Cart
                 </AddToCartButton>
-                <Link
-                  to={`/checkout?product=${product.id}&quantity=1`}
-                  className="flex w-full items-center justify-center rounded-md bg-gray-900 px-5 py-3 text-base font-medium text-white hover:bg-gray-800"
+                <BuyNowButton
+                  productId={product.id}
+                  size="lg"
+                  className="w-full"
                 >
                   Buy Now
-                </Link>
+                </BuyNowButton>
               </div>
               <p className="mt-4 text-center text-sm text-gray-500">
                 Secure checkout · Fast shipping · Easy returns
