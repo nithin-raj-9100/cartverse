@@ -2,6 +2,7 @@ import { SignupForm } from "@/components/signup-form";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router";
 import { SkeletonCard } from "@/components/Skeleton";
+import { apiRequest } from "@/lib/api-config";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -9,9 +10,7 @@ export default function Signup() {
   const { data, isLoading } = useQuery({
     queryKey: ["auth"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:4000/auth", {
-        credentials: "include",
-      });
+      const response = await apiRequest("/auth");
       const data = await response.json();
       if (data?.status === "authenticated") {
         navigate("/");

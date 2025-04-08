@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { apiRequest } from "@/lib/api-config";
 // import { SkeletonCard } from "@/components/Skeleton";
 
 export default function Login() {
@@ -15,9 +16,7 @@ export default function Login() {
   const { data, isLoading } = useQuery({
     queryKey: ["auth"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:4000/auth", {
-        credentials: "include",
-      });
+      const response = await apiRequest("/auth");
       const data = await response.json();
       if (data?.status === "authenticated") {
         navigate("/");
