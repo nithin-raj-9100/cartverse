@@ -8,6 +8,7 @@ declare module "fastify" {
       name: string | null;
       createdAt?: Date;
       updatedAt?: Date;
+      isGuest?: boolean;
     };
     rawBody?: Buffer;
   }
