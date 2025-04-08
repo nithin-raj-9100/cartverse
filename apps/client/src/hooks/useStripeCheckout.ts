@@ -1,22 +1,17 @@
 import { useMutation } from "@tanstack/react-query";
 import { loadStripe } from "@stripe/stripe-js";
 import toast from "react-hot-toast";
+import { apiRequest } from "@/lib/api-config";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-
-const API_URL = "http://localhost:4000";
 
 export function useStripeCheckout() {
   return useMutation({
     mutationFn: async (
       cartItems: Array<{ productId: string; quantity: number }>,
     ) => {
-      const response = await fetch(`${API_URL}/payment/checkout`, {
+      const response = await apiRequest("/payment/checkout", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
         body: JSON.stringify({ items: cartItems }),
       });
 

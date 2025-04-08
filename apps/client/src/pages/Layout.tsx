@@ -5,14 +5,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { CartSidebar } from "@/components/cart/cart-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { apiRequest } from "@/lib/api-config";
 
 const Layout = () => {
   const { data, isPending } = useQuery({
     queryKey: ["auth"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:4000/auth", {
-        credentials: "include",
-      });
+      const response = await apiRequest("/auth");
       return response.json();
     },
   });

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { RecentlyViewedScroll } from "@/components/Product/RecentlyViewedScroll";
 import { formatCurrency } from "@/lib/utils";
+import { apiRequest } from "@/lib/api-config";
 
 const features = [
   {
@@ -58,7 +59,7 @@ export default function Landing() {
   } = useQuery({
     queryKey: ["products", "featured"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:4000/products/featured");
+      const response = await apiRequest("/products/featured");
       if (!response.ok) {
         throw new Error("Failed to fetch featured products");
       }

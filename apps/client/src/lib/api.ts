@@ -1,13 +1,10 @@
 import { LoginBody, LoginResponse, SignupBody, SignupResponse } from "@/types";
+import { apiRequest } from "./api-config";
 
 export async function signup(data: SignupBody): Promise<SignupResponse> {
-  const response = await fetch("http://localhost:4000/auth/signup", {
+  const response = await apiRequest("/auth/signup", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(data),
-    credentials: "include",
   });
 
   console.log("response is ", response);
@@ -21,13 +18,9 @@ export async function signup(data: SignupBody): Promise<SignupResponse> {
 }
 
 export async function login(data: LoginBody): Promise<LoginResponse> {
-  const response = await fetch("http://localhost:4000/auth/login", {
+  const response = await apiRequest("/auth/login", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(data),
-    credentials: "include",
   });
 
   if (!response.ok) {

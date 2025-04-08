@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useEffect } from "react";
+import { apiRequest } from "@/lib/api-config";
 
 interface AuthRouteProps {
   children: React.ReactNode;
@@ -12,9 +13,7 @@ const AuthRoute = ({ children, requireAuth = false }: AuthRouteProps) => {
   const { data, isLoading } = useQuery({
     queryKey: ["auth"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:4000/auth", {
-        credentials: "include",
-      });
+      const response = await apiRequest("/auth");
       return response.json();
     },
   });
