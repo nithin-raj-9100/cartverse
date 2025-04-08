@@ -5,6 +5,7 @@ import { Search, X, Loader2 } from "lucide-react";
 // [ ] Internal Imports
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
+import { apiRequest } from "@/lib/api-config";
 
 interface SearchSuggestion {
   id: string;
@@ -132,8 +133,8 @@ export function SearchComponent() {
 
     setIsLoading(true);
     try {
-      const res = await fetch(
-        `http://localhost:4000/products/suggestions?query=${encodeURIComponent(query)}`,
+      const res = await apiRequest(
+        `/products/suggestions?query=${encodeURIComponent(query)}`,
       );
       if (res.ok) {
         const data = await res.json();

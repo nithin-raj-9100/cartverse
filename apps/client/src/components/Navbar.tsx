@@ -30,6 +30,7 @@ import { useCartQuery } from "@/hooks/useCart";
 import { SearchComponent } from "@/components/search";
 import { OrdersPopover } from "./orders/OrdersPopover";
 import { cn } from "@/lib/utils";
+import { apiRequest } from "@/lib/api-config";
 
 // [ ] Internal Imports
 import { navigation } from "../lib/constants";
@@ -56,8 +57,7 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch("http://localhost:4000/auth/logout", {
-        credentials: "include",
+      const res = await apiRequest("/auth/logout", {
         method: "POST",
       });
 

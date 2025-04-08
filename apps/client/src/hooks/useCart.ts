@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCartStore } from "@/store/useCartStore";
+import { API_URL, apiRequest } from "@/lib/api-config";
 
 export interface CartItem {
   productId: string;
@@ -16,15 +17,11 @@ export interface CartResponse {
   totalAmount: number;
 }
 
-const API_URL = "http://localhost:4000";
-
 export function useCartQuery() {
   return useQuery({
     queryKey: ["cart"],
     queryFn: async (): Promise<CartResponse> => {
-      const response = await fetch(`${API_URL}/cart`, {
-        credentials: "include",
-      });
+      const response = await apiRequest("/cart");
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -55,10 +52,8 @@ export function useAddToCart() {
       productId: string;
       quantity: number;
     }) => {
-      const response = await fetch(`${API_URL}/cart`, {
+      const response = await apiRequest("/cart", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ productId, quantity }),
       });
 
@@ -86,10 +81,8 @@ export function useUpdateCartItem() {
       productId: string;
       quantity: number;
     }) => {
-      const response = await fetch(`${API_URL}/cart/${productId}`, {
+      const response = await apiRequest(`/cart/${productId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ quantity }),
       });
 
@@ -110,9 +103,8 @@ export function useRemoveCartItem() {
 
   return useMutation({
     mutationFn: async (productId: string) => {
-      const response = await fetch(`${API_URL}/cart/${productId}`, {
+      const response = await apiRequest(`/cart/${productId}`, {
         method: "DELETE",
-        credentials: "include",
       });
 
       if (!response.ok) {
@@ -132,9 +124,8 @@ export function useClearCart() {
 
   return useMutation({
     mutationFn: async () => {
-      const response = await fetch(`${API_URL}/cart`, {
+      const response = await apiRequest("/cart", {
         method: "DELETE",
-        credentials: "include",
       });
 
       if (!response.ok) {

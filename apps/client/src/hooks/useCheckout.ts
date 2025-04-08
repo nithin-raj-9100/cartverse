@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useCartStore } from "@/store/useCartStore";
-
-const API_URL = "http://localhost:4000";
+import { apiRequest } from "@/lib/api-config";
 
 export interface CheckoutData {
   email: string;
@@ -32,10 +31,8 @@ export function useCheckout() {
 
   return useMutation({
     mutationFn: async (data: CheckoutData) => {
-      const response = await fetch(`${API_URL}/checkout`, {
+      const response = await apiRequest("/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(data),
       });
 

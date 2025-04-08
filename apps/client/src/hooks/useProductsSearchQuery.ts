@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { categoryToEnum } from "@/lib/constants";
 import { useDebounce } from "use-debounce";
+import { apiRequest } from "@/lib/api-config";
 
 export interface ProductSearchParams {
   searchTerm: string | null;
@@ -65,9 +66,7 @@ export const useProductsSearchQuery = ({
         params.append("sizes", sizes.join(","));
       }
 
-      const url = `http://localhost:4000/products/search?${params.toString()}`;
-
-      const res = await fetch(url);
+      const res = await apiRequest(`/products/search?${params.toString()}`);
       if (!res.ok) {
         throw new Error("Failed to fetch products");
       }

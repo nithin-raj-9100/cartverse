@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Order } from "@/types/index";
 import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
+import { apiRequest } from "@/lib/api-config";
 
 export function useOrdersQuery() {
   const navigate = useNavigate();
@@ -10,9 +11,7 @@ export function useOrdersQuery() {
     queryKey: ["orders"],
     queryFn: async () => {
       try {
-        const response = await fetch("http://localhost:4000/orders", {
-          credentials: "include",
-        });
+        const response = await apiRequest("/orders");
 
         if (response.status === 401) {
           toast.error("Please login to view your orders");

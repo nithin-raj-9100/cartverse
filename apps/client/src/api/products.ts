@@ -1,10 +1,9 @@
 import { Product } from "@/types";
-
-const API_URL = "http://localhost:4000";
+import { API_URL, apiRequest } from "@/lib/api-config";
 
 export async function getProducts(): Promise<Product[]> {
   try {
-    const response = await fetch(`${API_URL}/products`);
+    const response = await apiRequest("/products");
     if (!response.ok) {
       throw new Error("Failed to fetch products");
     }
@@ -17,7 +16,7 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 export async function getProduct(id: string): Promise<Product> {
-  const response = await fetch(`${API_URL}/products/${id}`);
+  const response = await apiRequest(`/products/${id}`);
   if (!response.ok) {
     throw new Error("Failed to fetch product");
   }

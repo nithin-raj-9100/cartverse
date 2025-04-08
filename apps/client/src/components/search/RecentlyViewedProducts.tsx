@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { useRecentlyViewedStore } from "@/store/useRecentlyViewedStore";
 import { Product } from "@/types";
 import { formatCurrency } from "@/lib/utils";
+import { apiRequest } from "@/lib/api-config";
 
 export function RecentlyViewedProducts() {
   const { recentlyViewed } = useRecentlyViewedStore();
@@ -12,7 +13,7 @@ export function RecentlyViewedProducts() {
     const loadProducts = async () => {
       try {
         const productPromises = recentlyViewed.map(async (id) => {
-          const res = await fetch(`http://localhost:4000/products/${id}`);
+          const res = await apiRequest(`/products/${id}`);
           if (!res.ok) return null;
           return res.json();
         });
