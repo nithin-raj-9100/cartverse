@@ -11,8 +11,65 @@ const CACHE_TTL_MS = 1000;
 export async function productsRoutes(app: FastifyInstance) {
   app.get("/products", async (request, reply) => {
     try {
-      const products = await prisma.product.findMany();
-      return reply.send(products);
+      const {
+        limit = "12",
+        offset = "0",
+        sort = "newest",
+      } = request.query as {
+        limit?: string;
+        offset?: string;
+        sort?: string;
+      };
+
+      const limitNum = parseInt(limit, 10);
+      const offsetNum = parseInt(offset, 10);
+
+      let orderBy: any = {};
+
+      switch (sort) {
+        case "newest":
+          orderBy = { createdAt: "desc" };
+          break;
+        case "price_asc":
+          orderBy = { price: "asc" };
+          break;
+        case "price_desc":
+          orderBy = { price: "desc" };
+          break;
+        case "name_asc":
+          orderBy = { name: "asc" };
+          break;
+        case "name_desc":
+          orderBy = { name: "desc" };
+          break;
+        case "rating_desc":
+          orderBy = { rating: "desc" };
+          break;
+        case "popular":
+          orderBy = { rating: "desc" };
+          break;
+        default:
+          orderBy = { createdAt: "desc" };
+      }
+
+      const [products, totalCount] = await Promise.all([
+        prisma.product.findMany({
+          take: limitNum,
+          skip: offsetNum,
+          orderBy: orderBy,
+        }),
+        prisma.product.count(),
+      ]);
+
+      return reply.send({
+        products,
+        pagination: {
+          total: totalCount,
+          limit: limitNum,
+          offset: offsetNum,
+          hasMore: offsetNum + limitNum < totalCount,
+        },
+      });
     } catch (error) {
       console.error("Error fetching products:", error);
       return reply.status(500).send({ error: "Internal Server Error" });

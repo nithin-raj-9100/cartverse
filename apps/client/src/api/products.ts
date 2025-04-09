@@ -1,17 +1,56 @@
 import { Product } from "@/types";
 import { API_URL, apiRequest } from "@/lib/api-config";
 
-export async function getProducts(): Promise<Product[]> {
+export interface PaginatedProductsResponse {
+  products: Product[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+}
+
+export interface GetProductsParams {
+  limit?: number;
+  offset?: number;
+  sort?: string;
+}
+
+export async function getProducts(
+  params?: GetProductsParams,
+): Promise<PaginatedProductsResponse> {
   try {
-    const response = await apiRequest("/products");
+    const queryParams = new URLSearchParams();
+
+    if (params?.limit) {
+      queryParams.append("limit", params.limit.toString());
+    }
+
+    if (params?.offset) {
+      queryParams.append("offset", params.offset.toString());
+    }
+
+    if (params?.sort) {
+      queryParams.append("sort", params.sort);
+    }
+
+    const queryString = queryParams.toString();
+    const url = queryString ? `/products?${queryString}` : "/products";
+
+    const response = await apiRequest(url);
     if (!response.ok) {
       throw new Error("Failed to fetch products");
     }
+
     const data = await response.json();
-    return Array.isArray(data) ? data : [];
+    return data;
   } catch (error) {
     console.error("Error fetching products:", error);
-    return [];
+    return {
+      products: [],
+      pagination: { total: 0, limit: 0, offset: 0, hasMore: false },
+    };
   }
 }
 
