@@ -4,7 +4,7 @@ import fastifyCookie from "@fastify/cookie";
 import { registerPlugins } from "./modules/plugins/index.js";
 import { registerRoutes } from "./routes.js";
 import fastifyCors from "@fastify/cors";
-import oauthPlugin from "@fastify/oauth2";
+// import oauthPlugin from "@fastify/oauth2";
 
 export async function createApp() {
   const isProduction = process.env.NODE_ENV === "production";
@@ -76,26 +76,26 @@ export async function createApp() {
     allowedHeaders: ["Content-Type", "Authorization"],
   });
 
-  await app.register(oauthPlugin, {
-    name: "githubOAuth2",
-    credentials: {
-      client: {
-        id: process.env.GITHUB_CLIENT_ID!,
-        secret: process.env.GITHUB_CLIENT_SECRET!,
-      },
-      auth: {
-        authorizeHost: "https://github.com",
-        authorizePath: "/login/oauth/authorize",
-        tokenHost: "https://github.com",
-        tokenPath: "/login/oauth/access_token",
-      },
-    },
-    startRedirectPath: "/auth/github",
-    callbackUri: isProduction
-      ? `${customDomain}/api/auth/github/callback`
-      : `${process.env.API_URL || "http://localhost:4000"}/auth/github/callback`,
-    scope: ["read:user", "user:email"],
-  });
+  // await app.register(oauthPlugin, {
+  //   name: "githubOAuth2",
+  //   credentials: {
+  //     client: {
+  //       id: process.env.GITHUB_CLIENT_ID!,
+  //       secret: process.env.GITHUB_CLIENT_SECRET!,
+  //     },
+  //     auth: {
+  //       authorizeHost: "https://github.com",
+  //       authorizePath: "/login/oauth/authorize",
+  //       tokenHost: "https://github.com",
+  //       tokenPath: "/login/oauth/access_token",
+  //     },
+  //   },
+  //   startRedirectPath: "/auth/github",
+  //   callbackUri: isProduction
+  //     ? `${customDomain}/api/auth/github/callback`
+  //     : `${process.env.API_URL || "http://localhost:4000"}/auth/github/callback`,
+  //   scope: ["read:user", "user:email"],
+  // });
 
   app.addHook("onRequest", async (request) => {
     if (request.url.startsWith("/auth/github")) {
