@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "prisma generate && tsc",
@@ -26,6 +25,7 @@
     "@prisma/client": "6.3.0",
     "@supabase/supabase-js": "^2.49.1",
     "@types/bcrypt": "^5.0.2",
+    "@vercel/node": "^5.1.14",
     "arctic": "^3.2.2",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
