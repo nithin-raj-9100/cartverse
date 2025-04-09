@@ -1,23 +1,35 @@
-import {
-  encodeBase32LowerCaseNoPadding,
-  encodeHexLowerCase,
-} from "@oslojs/encoding";
-import { sha256 } from "@oslojs/crypto/sha2";
-
 import prisma from "./prisma";
 import type { User, Session } from "@prisma/client";
 
-export function generateSessionToken(): string {
+const dynamicImport = new Function("modulePath", "return import(modulePath)");
+
+async function getEncodingFunctions() {
+  const encoding = await dynamicImport("@oslojs/encoding");
+  return {
+    encodeBase32LowerCaseNoPadding: encoding.encodeBase32LowerCaseNoPadding,
+    encodeHexLowerCase: encoding.encodeHexLowerCase,
+  };
+}
+
+async function getSha256Function() {
+  const crypto = await dynamicImport("@oslojs/crypto/sha2");
+  return crypto.sha256;
+}
+
+export async function generateSessionToken(): Promise<string> {
   const bytes = new Uint8Array(20);
   crypto.getRandomValues(bytes);
+  const { encodeBase32LowerCaseNoPadding } = await getEncodingFunctions();
   const token = encodeBase32LowerCaseNoPadding(bytes);
   return token;
 }
 
 export async function createSession(
   token: string,
-  userId: string,
+  userId: string
 ): Promise<Session> {
+  const { encodeHexLowerCase } = await getEncodingFunctions();
+  const sha256 = await getSha256Function();
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
   const session: Session = {
     id: sessionId,
@@ -31,8 +43,10 @@ export async function createSession(
 }
 
 export async function validateSessionToken(
-  token: string,
+  token: string
 ): Promise<SessionValidationResult> {
+  const { encodeHexLowerCase } = await getEncodingFunctions();
+  const sha256 = await getSha256Function();
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
   const result = await prisma.session.findUnique({
     where: {

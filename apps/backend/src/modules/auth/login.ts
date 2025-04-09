@@ -15,19 +15,24 @@ export function loginRoutes(fastify: FastifyInstance) {
 
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (
+      !user ||
+      !user.password ||
+      !(await bcrypt.compare(password, user.password))
+    ) {
       return reply.status(401).send({ message: "Invalid credentials" });
     }
 
     const guestId = request.cookies.guest_id;
 
-    const token = generateSessionToken();
+    const token = await generateSessionToken();
     const session = await createSession(token, user.id);
 
+    const isProduction = process.env.NODE_ENV === "production";
     reply.setCookie("session_token", token, {
       path: "/",
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       sameSite: "lax",
       expires: session.expiresAt,
       signed: true,

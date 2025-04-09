@@ -7,12 +7,13 @@ import {
   clearCartHandler,
 } from "./cart.controller";
 import prisma from "../utils/prisma";
-import { encodeHexLowerCase } from "@oslojs/encoding";
-import { sha256 } from "@oslojs/crypto/sha2";
+import { importCryptoUtils } from "../utils/dynamic-imports";
 
 export async function cartRoutes(app: FastifyInstance) {
   app.addHook("preHandler", async (request, reply) => {
     try {
+      const { encodeHexLowerCase, sha256 } = await importCryptoUtils();
+
       const signedSessionToken = request.cookies.session_token;
 
       if (!signedSessionToken) {
@@ -21,9 +22,11 @@ export async function cartRoutes(app: FastifyInstance) {
           `guest_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
         if (!request.cookies.guest_id) {
+          const isProduction = process.env.NODE_ENV === "production";
           reply.setCookie("guest_id", guestId, {
             path: "/",
             httpOnly: true,
+            secure: isProduction,
             sameSite: "lax",
             expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           });

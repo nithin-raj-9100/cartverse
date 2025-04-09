@@ -1,10 +1,11 @@
 import { FastifyInstance } from "fastify";
 import { invalidateSession } from "../utils/auth";
-import { encodeHexLowerCase } from "@oslojs/encoding";
-import { sha256 } from "@oslojs/crypto/sha2";
+import { importCryptoUtils } from "../utils/dynamic-imports";
 
 export function logoutRoutes(fastify: FastifyInstance) {
   fastify.post("/", async (request, reply) => {
+    const { encodeHexLowerCase, sha256 } = await importCryptoUtils();
+
     const signedSessionToken = request.cookies.session_token;
 
     if (!signedSessionToken) {
@@ -29,10 +30,11 @@ export function logoutRoutes(fastify: FastifyInstance) {
 
       await invalidateSession(sessionId);
 
+      const isProduction = process.env.NODE_ENV === "production";
       reply.clearCookie("session_token", {
         path: "/",
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isProduction,
         sameSite: "lax",
       });
 

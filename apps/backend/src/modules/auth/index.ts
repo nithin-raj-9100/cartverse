@@ -1,10 +1,11 @@
 import { FastifyInstance } from "fastify";
 import prisma from "../utils/prisma";
-import { encodeHexLowerCase } from "@oslojs/encoding";
-import { sha256 } from "@oslojs/crypto/sha2";
+import { importCryptoUtils } from "../utils/dynamic-imports";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   fastify.get("/", async (request, reply) => {
+    const { encodeHexLowerCase, sha256 } = await importCryptoUtils();
+
     const signedSessionToken = request.cookies.session_token;
 
     if (!signedSessionToken) {
