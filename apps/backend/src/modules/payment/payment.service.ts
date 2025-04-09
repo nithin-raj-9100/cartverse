@@ -1,5 +1,19 @@
 import Stripe from "stripe";
 import { prisma } from "../utils/prisma";
+import type { CheckoutItem } from "./payment.schema";
+import type { Product, CartItem } from "@prisma/client";
+
+type CartItemWithProduct = CartItem & {
+  product: Product;
+};
+
+type TempCartItem = {
+  productId: string;
+  quantity: number;
+  product: Product;
+};
+
+type CartItemType = CartItemWithProduct | TempCartItem;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   // apiVersion: "2023-10-16",
@@ -7,11 +21,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function createMockCheckoutSession(
   userId: string,
-  items: Array<{ productId: string; quantity: number }>,
+  items: CheckoutItem[],
   customerEmail?: string
 ) {
   try {
-    let cartItems = await prisma.cartItem.findMany({
+    let cartItems: CartItemType[] = await prisma.cartItem.findMany({
       where: {
         cart: {
           userId: userId,
@@ -34,12 +48,11 @@ export async function createMockCheckoutSession(
         },
       });
 
-      // @ts-expect-error TODO: Fix this type error
       cartItems = products.map((product) => {
         const matchedItem = items.find((item) => item.productId === product.id);
         return {
           productId: product.id,
-          quantity: matchedItem?.quantity || 1,
+          quantity: matchedItem ? matchedItem.quantity : 1,
           product,
         };
       });
@@ -99,7 +112,7 @@ export async function createMockCheckoutSession(
 
 export async function createCheckoutSession(
   userId: string,
-  items: Array<{ productId: string; quantity: number }>,
+  items: CheckoutItem[],
   customerEmail?: string
 ) {
   try {
@@ -107,7 +120,7 @@ export async function createCheckoutSession(
       return createMockCheckoutSession(userId, items, customerEmail);
     }
 
-    let cartItems = await prisma.cartItem.findMany({
+    let cartItems: CartItemType[] = await prisma.cartItem.findMany({
       where: {
         cart: {
           userId: userId,
@@ -130,12 +143,11 @@ export async function createCheckoutSession(
         },
       });
 
-      // @ts-expect-error TODO: Fix this type error
       cartItems = products.map((product) => {
         const matchedItem = items.find((item) => item.productId === product.id);
         return {
           productId: product.id,
-          quantity: matchedItem?.quantity || 1,
+          quantity: matchedItem ? matchedItem.quantity : 1,
           product,
         };
       });
@@ -153,7 +165,7 @@ export async function createCheckoutSession(
           },
           unit_amount: Math.round(item.product.price * 100),
         },
-        quantity: matchedItem?.quantity || item.quantity,
+        quantity: matchedItem ? matchedItem.quantity : item.quantity,
       };
     });
 

@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "NODE_ENV=development pnpm install && pnpm run build",
+  "installCommand": "pnpm install",
+
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "functions": {
+    "api/index.js": {
+      "memory": 1024,
+      "maxDuration": 15,
+      "includeFiles": "apps/backend/dist/**"
+    }
+  },
+  "outputDirectory": "apps/client/dist",
+  "devCommand": "pnpm dev",
+  "framework": null
+}
