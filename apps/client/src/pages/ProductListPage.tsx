@@ -64,8 +64,15 @@ const ProductListPage = () => {
     setSortOption(e.target.value);
   };
 
-  const products: Product[] =
-    data?.pages.flatMap((page) => page.products) || [];
+  const products: Product[] = data?.pages
+    ? Array.from(
+        new Map(
+          data.pages
+            .flatMap((page) => page.products)
+            .map((product) => [product.id, product]),
+        ).values(),
+      )
+    : [];
   const totalProducts = data?.pages[0]?.pagination.total || 0;
 
   if (isLoading && products.length === 0) {

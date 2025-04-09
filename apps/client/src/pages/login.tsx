@@ -39,7 +39,7 @@ export default function Login() {
           >
             <img
               alt="CartVerse Logo"
-              src="/logo/logo.png"
+              src="logo1.webp"
               className="h-12 w-auto"
             />
           </Link>

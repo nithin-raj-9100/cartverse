@@ -59,6 +59,7 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
     mutationFn: async () => {
       const res = await apiRequest("/auth/logout", {
         method: "POST",
+        body: JSON.stringify({}),
       });
 
       if (!res.ok) {
@@ -267,7 +268,7 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                   <span className="sr-only">CartVerse</span>
                   <img
                     alt="CartVerse Logo"
-                    src="/logo/logo.png"
+                    src="logo1.webp"
                     className="h-12 w-auto"
                   />
                 </Link>
