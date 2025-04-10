@@ -28,7 +28,7 @@ export const useRecentlyViewedProducts = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["recentlyViewed", userId] });
+      queryClient.invalidateQueries({ queryKey: ["recentlyViewed", user?.id] });
     },
   });
 

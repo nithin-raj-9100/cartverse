@@ -7,8 +7,6 @@ export async function signup(data: SignupBody): Promise<SignupResponse> {
     body: JSON.stringify(data),
   });
 
-  console.log("response is ", response);
-
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || "Something went wrong");
