@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { prisma } from "../utils/prisma";
-import { Category } from "@prisma/client";
+import { ProductCategory } from "@prisma/client";
 
 const searchRequestCache = new Map<
   string,
@@ -146,7 +146,7 @@ export async function productsRoutes(app: FastifyInstance) {
 
       if (category) {
         try {
-          const categoryEnum = category.toUpperCase() as Category;
+          const categoryEnum = category.toUpperCase() as ProductCategory;
           whereConditions.category = categoryEnum;
         } catch (error) {
           console.error("Invalid category:", category);
@@ -287,7 +287,7 @@ export async function productsRoutes(app: FastifyInstance) {
       const whereCondition: any = {};
       if (category) {
         try {
-          const categoryEnum = category.toUpperCase() as Category;
+          const categoryEnum = category.toUpperCase() as ProductCategory;
           whereCondition.category = categoryEnum;
         } catch (error) {
           console.error("Invalid category:", category);
@@ -307,12 +307,12 @@ export async function productsRoutes(app: FastifyInstance) {
       });
 
       const categoryCounts = await prisma.$transaction(
-        Object.values(Category).map((cat) =>
+        Object.values(ProductCategory).map((cat) =>
           prisma.product.count({ where: { category: cat } })
         )
       );
 
-      const categoryStats = Object.values(Category).reduce(
+      const categoryStats = Object.values(ProductCategory).reduce(
         (acc, cat, i) => {
           acc[cat] = categoryCounts[i];
           return acc;
@@ -372,7 +372,7 @@ export async function productsRoutes(app: FastifyInstance) {
     const { category } = request.params as { category: string };
 
     try {
-      const categoryEnum = category.toUpperCase() as Category;
+      const categoryEnum = category.toUpperCase() as ProductCategory;
 
       const products = await prisma.product.findMany({
         where: {
