@@ -28,6 +28,17 @@ enum Category {
   STICKERS
 }
 
+enum ProductCategory {
+  ACCESSORIES
+  BODY_AND_HAIR
+  CLOTHING
+  ELECTRONICS
+  FOOTWEAR
+  HOME_AND_INTERIOR
+  KIDS
+  TSHIRTS
+}
+
 model User {
   id             String           @id @default(cuid())
   email          String           @unique
@@ -47,7 +58,7 @@ model Product {
   name           String
   description    String
   price          Int
-  category       Category
+  category       ProductCategory
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   imageUrl       String
