@@ -45,7 +45,7 @@ const Footer = () => {
             <div className="flex items-center space-x-2">
               <img
                 alt="CartVerse Logo"
-                src="logo1.webp"
+                src="/logo1.webp"
                 className="h-12 w-auto"
               />
             </div>
