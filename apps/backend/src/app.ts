@@ -4,7 +4,6 @@ import fastifyCookie from "@fastify/cookie";
 import { registerPlugins } from "./modules/plugins/index.js";
 import { registerRoutes } from "./routes.js";
 import fastifyCors from "@fastify/cors";
-// import oauthPlugin from "@fastify/oauth2";
 
 export async function createApp() {
   const isProduction = process.env.NODE_ENV === "production";
@@ -19,6 +18,30 @@ export async function createApp() {
     ignoreTrailingSlash: true,
     disableRequestLogging: isProduction,
   }) as FastifyInstance;
+
+  const allowedOrigins = [
+    clientUrl,
+    productionDomain,
+    customDomain,
+    /\.vercel\.app$/,
+  ].filter(Boolean) as (string | RegExp)[];
+
+  if (!isProduction) {
+    allowedOrigins.push("http://localhost:5173");
+  }
+
+  await app.register(fastifyCors, {
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  });
+
+  // app.addHook("onRequest", (req, _reply, done) => {
+  //   console.log(`Request received: ${req.method} ${req.url}`);
+  //   console.log(`Origin: ${req.headers.origin}`);
+  //   done();
+  // });
 
   if (isProduction) {
     app.register(
@@ -69,34 +92,6 @@ export async function createApp() {
     },
   });
 
-  await app.register(fastifyCors, {
-    origin: [clientUrl, productionDomain, customDomain, /\.vercel\.app$/],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  });
-
-  // await app.register(oauthPlugin, {
-  //   name: "githubOAuth2",
-  //   credentials: {
-  //     client: {
-  //       id: process.env.GITHUB_CLIENT_ID!,
-  //       secret: process.env.GITHUB_CLIENT_SECRET!,
-  //     },
-  //     auth: {
-  //       authorizeHost: "https://github.com",
-  //       authorizePath: "/login/oauth/authorize",
-  //       tokenHost: "https://github.com",
-  //       tokenPath: "/login/oauth/access_token",
-  //     },
-  //   },
-  //   startRedirectPath: "/auth/github",
-  //   callbackUri: isProduction
-  //     ? `${customDomain}/api/auth/github/callback`
-  //     : `${process.env.API_URL || "http://localhost:4000"}/auth/github/callback`,
-  //   scope: ["read:user", "user:email"],
-  // });
-
   app.addHook("onRequest", async (request) => {
     if (request.url.startsWith("/auth/github")) {
       request.log.info(
@@ -110,8 +105,7 @@ export async function createApp() {
       );
     }
   });
-
-  console.log("Fastify app created with plugins", app.printPlugins());
+  // console.log("Fastify app created with plugins", app.printPlugins());
 
   return app;
 }
