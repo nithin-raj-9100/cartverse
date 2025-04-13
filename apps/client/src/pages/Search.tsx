@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Loader2, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { Link, useNavigate, useSearchParams, useParams } from "react-router";
 import { useDebounce } from "use-debounce";
@@ -18,33 +18,13 @@ import {
 } from "@/components/ui/accordion";
 import { formatCurrency } from "@/lib/utils";
 
-interface CategoryFacet {
-  category: string;
-  _count: {
-    category: number;
-  };
-}
-
-interface ColorFacet {
-  name: string;
-  count: number;
-}
-
-interface FacetData {
-  categories: CategoryFacet[];
-  priceRange: { min: number; max: number };
-  colors: ColorFacet[];
-  sizes: { name: string; count: number }[];
-  ratings: Array<{ rating: number; count: number }>;
-}
-
-interface RecentlyViewedProduct {
-  id: string;
-  name: string;
-  imageUrl: string;
-  price: number;
+interface FiltersState {
+  priceRange: [number, number];
+  colors: string[];
+  sizes: string[];
   rating: number;
-  [key: string]: string | number | boolean | null;
+  collection: string;
+  sort: string;
 }
 
 const Search = () => {
@@ -52,38 +32,8 @@ const Search = () => {
   const [searchParams] = useSearchParams();
   const { category: urlCategory } = useParams();
   const searchTerm = searchParams.get("q");
-  const sortParam = searchParams.get("sort") || "";
-  const categoryParam =
-    searchParams.get("category") ||
-    (urlCategory ? urlCategory.toUpperCase() : "All");
-  const minPriceParam = searchParams.get("minPrice");
-  const maxPriceParam = searchParams.get("maxPrice");
-  const minRatingParam = searchParams.get("minRating");
 
-  const colorsParam = useMemo(
-    () => searchParams.get("colors")?.split(",") || [],
-    [searchParams],
-  );
-
-  const sizesParam = useMemo(
-    () => searchParams.get("sizes")?.split(",") || [],
-    [searchParams],
-  );
-
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
-  const [debouncedPriceRange] = useDebounce(priceRange, 1000);
-  const [selectedColors, setSelectedColors] = useState<string[]>(colorsParam);
-  const [selectedSizes, setSelectedSizes] = useState<string[]>(sizesParam);
-  const [selectedRating, setSelectedRating] = useState<number>(
-    minRatingParam ? parseInt(minRatingParam) : 0,
-  );
-  const [filterExpanded, setFilterExpanded] = useState(true);
-  const [autoApplyFilters, setAutoApplyFilters] = useState(false);
-
-  const { recentlyViewedProducts, isLoading: isLoadingRecent } =
-    useRecentlyViewedProducts();
-
-  const getSortNameFromParam = (param: string) => {
+  const getSortNameFromParam = useCallback((param: string | null) => {
     switch (param) {
       case "newest":
         return "Newest";
@@ -98,230 +48,238 @@ const Search = () => {
       default:
         return "Relevance";
     }
-  };
+  }, []);
 
-  const getCategoryNameFromParam = (param: string): string => {
+  const getCategoryNameFromParam = useCallback((param: string | null) => {
     if (!param) return "All";
-
     const category = Object.entries(categoryToEnum).find(
       ([_, enumValue]) => enumValue === param.toUpperCase(),
     );
-
     return category ? category[0] : "All";
-  };
+  }, []);
 
-  const [selectedCollection, setSelectedCollection] = useState<string>(
-    getCategoryNameFromParam(categoryParam),
-  );
-  const [selectedSort, setSelectedSort] = useState<string>(
-    getSortNameFromParam(sortParam),
-  );
-
-  const sortBy = [
-    { name: "Relevance", key: 1, value: "" },
-    { name: "Newest", key: 2, value: "newest" },
-    { name: "Price: Low to High", key: 3, value: "price_asc" },
-    { name: "Price: High to Low", key: 4, value: "price_desc" },
-    { name: "Highest Rated", key: 5, value: "rating_desc" },
-    { name: "Popular", key: 6, value: "popular" },
-  ];
-
-  const colorOptions = [
-    { name: "Red", value: "red" },
-    { name: "Blue", value: "blue" },
-    { name: "Green", value: "green" },
-    { name: "Yellow", value: "yellow" },
-    { name: "Black", value: "black" },
-    { name: "White", value: "white" },
-  ];
-
-  const sizeOptions = [
-    { name: "S", value: "S" },
-    { name: "M", value: "M" },
-    { name: "L", value: "L" },
-    { name: "XL", value: "XL" },
-  ];
-
-  useEffect(() => {
-    setSelectedSort(getSortNameFromParam(sortParam));
-  }, [sortParam]);
-
-  useEffect(() => {
-    if (urlCategory) {
-      const categoryEnum = urlCategory.toUpperCase();
-      const category = Object.entries(categoryToEnum).find(
-        ([_, enumValue]) => enumValue === categoryEnum,
-      );
-
-      if (category) {
-        setSelectedCollection(category[0]);
-        const newParams = new URLSearchParams(searchParams);
-        if (!newParams.has("category")) {
-          newParams.set("category", categoryEnum);
-          navigate(`/search/${urlCategory}?${newParams.toString()}`, {
-            replace: true,
-          });
-        }
-      }
-    }
-  }, [urlCategory, navigate, searchParams]);
-
-  useEffect(() => {
-    if (minPriceParam && maxPriceParam) {
-      setPriceRange([parseInt(minPriceParam), parseInt(maxPriceParam)]);
-    }
-
-    if (colorsParam.length > 0) {
-      setSelectedColors(colorsParam);
-    }
-
-    if (sizesParam.length > 0) {
-      setSelectedSizes(sizesParam);
-    }
-
-    if (minRatingParam) {
-      setSelectedRating(parseInt(minRatingParam));
-    }
-  }, [minPriceParam, maxPriceParam, colorsParam, sizesParam, minRatingParam]);
-
-  useEffect(() => {
-    if (autoApplyFilters) {
-      const newParams = new URLSearchParams(searchParams);
-      if (debouncedPriceRange[0] > 0) {
-        newParams.set("minPrice", debouncedPriceRange[0].toString());
-      } else {
-        newParams.delete("minPrice");
-      }
-      if (debouncedPriceRange[1] < 1000) {
-        newParams.set("maxPrice", debouncedPriceRange[1].toString());
-      } else {
-        newParams.delete("maxPrice");
-      }
-      navigate(`/search?${newParams.toString()}`);
-    }
-  }, [debouncedPriceRange, autoApplyFilters, searchParams, navigate]);
-
-  const getSortValue = (sortName: string) => {
+  const getSortValue = useCallback((sortName: string) => {
     const sort = sortBy.find((s) => s.name === sortName);
     return sort?.value || "";
-  };
+  }, []);
+
+  const initialState = useMemo<FiltersState>(() => {
+    const minPriceParam = searchParams.get("minPrice");
+    const maxPriceParam = searchParams.get("maxPrice");
+    const colorsParam = searchParams.get("colors")?.split(",") || [];
+    const sizesParam = searchParams.get("sizes")?.split(",") || [];
+    const minRatingParam = searchParams.get("minRating");
+    const categoryParam = searchParams.get("category");
+    const sortParam = searchParams.get("sort");
+
+    return {
+      priceRange: [
+        minPriceParam ? parseInt(minPriceParam) : 0,
+        maxPriceParam ? parseInt(maxPriceParam) : 1000,
+      ],
+      colors: colorsParam,
+      sizes: sizesParam,
+      rating: minRatingParam ? parseInt(minRatingParam) : 0,
+      collection: getCategoryNameFromParam(
+        categoryParam || (urlCategory ? urlCategory.toUpperCase() : null),
+      ),
+      sort: getSortNameFromParam(sortParam),
+    };
+  }, [
+    searchParams,
+    urlCategory,
+    getCategoryNameFromParam,
+    getSortNameFromParam,
+  ]);
+
+  const [filters, setFilters] = useState<FiltersState>(initialState);
+  const [debouncedPriceRange] = useDebounce(filters.priceRange, 1000);
+
+  const [filterExpanded, setFilterExpanded] = useState(true);
+  const { recentlyViewedProducts, isLoading: isLoadingRecent } =
+    useRecentlyViewedProducts();
+
+  const sortBy = useMemo(
+    () => [
+      { name: "Relevance", key: 1, value: "" },
+      { name: "Newest", key: 2, value: "newest" },
+      { name: "Price: Low to High", key: 3, value: "price_asc" },
+      { name: "Price: High to Low", key: 4, value: "price_desc" },
+      { name: "Highest Rated", key: 5, value: "rating_desc" },
+      { name: "Popular", key: 6, value: "popular" },
+    ],
+    [],
+  );
+
+  const colorOptions = useMemo(
+    () => [
+      { name: "Red", value: "red" },
+      { name: "Blue", value: "blue" },
+      { name: "Green", value: "green" },
+      { name: "Yellow", value: "yellow" },
+      { name: "Black", value: "black" },
+      { name: "White", value: "white" },
+    ],
+    [],
+  );
+
+  const sizeOptions = useMemo(
+    () => [
+      { name: "S", value: "S" },
+      { name: "M", value: "M" },
+      { name: "L", value: "L" },
+      { name: "XL", value: "XL" },
+    ],
+    [],
+  );
+
+  const updateUrl = useCallback(
+    (newFilters: FiltersState, replace = false) => {
+      const params = new URLSearchParams(searchParams);
+
+      if (searchTerm) {
+        params.set("q", searchTerm);
+      } else {
+        params.delete("q");
+      }
+
+      let path = "/search";
+      params.delete("category");
+      if (newFilters.collection !== "All") {
+        const categoryValue = categoryToEnum[newFilters.collection];
+        if (categoryValue) {
+          params.set("category", categoryValue);
+          const categoryPath = Object.keys(categoryToEnum)
+            .find((key) => categoryToEnum[key] === categoryValue)
+            ?.toLowerCase();
+          if (categoryPath) {
+            path = `/search/${categoryPath}`;
+          }
+        }
+      }
+
+      const sortValue = getSortValue(newFilters.sort);
+      if (sortValue) {
+        params.set("sort", sortValue);
+      } else {
+        params.delete("sort");
+      }
+
+      if (newFilters.priceRange[0] > 0) {
+        params.set("minPrice", newFilters.priceRange[0].toString());
+      } else {
+        params.delete("minPrice");
+      }
+      if (newFilters.priceRange[1] < 1000) {
+        params.set("maxPrice", newFilters.priceRange[1].toString());
+      } else {
+        params.delete("maxPrice");
+      }
+
+      if (newFilters.colors.length > 0) {
+        params.set("colors", newFilters.colors.join(","));
+      } else {
+        params.delete("colors");
+      }
+
+      if (newFilters.sizes.length > 0) {
+        params.set("sizes", newFilters.sizes.join(","));
+      } else {
+        params.delete("sizes");
+      }
+
+      if (newFilters.rating > 0) {
+        params.set("minRating", newFilters.rating.toString());
+      } else {
+        params.delete("minRating");
+      }
+
+      navigate(`${path}?${params.toString()}`, { replace });
+    },
+    [navigate, searchParams, searchTerm, getSortValue],
+  );
+
+  useEffect(() => {
+    const currentMin = searchParams.get("minPrice");
+    const currentMax = searchParams.get("maxPrice");
+    const debouncedMin =
+      debouncedPriceRange[0] > 0 ? debouncedPriceRange[0].toString() : null;
+    const debouncedMax =
+      debouncedPriceRange[1] < 1000 ? debouncedPriceRange[1].toString() : null;
+
+    if (currentMin !== debouncedMin || currentMax !== debouncedMax) {
+      updateUrl(
+        {
+          ...filters,
+          priceRange: debouncedPriceRange,
+        },
+        true,
+      );
+    }
+  }, [debouncedPriceRange, filters, searchParams, updateUrl]);
+
+  useEffect(() => {
+    setFilters(initialState);
+  }, [initialState]);
 
   const { data, isLoading, error } = useProductsSearchQuery({
     searchTerm,
-    collection: selectedCollection !== "All" ? selectedCollection : null,
-    sortBy: getSortValue(selectedSort),
-    minPrice: priceRange[0].toString(),
-    maxPrice: priceRange[1].toString(),
-    minRating: selectedRating > 0 ? selectedRating.toString() : null,
-    colors: selectedColors.length > 0 ? selectedColors : null,
-    sizes: selectedSizes.length > 0 ? selectedSizes : null,
+    collection: filters.collection !== "All" ? filters.collection : null,
+    sortBy: getSortValue(filters.sort),
+    minPrice:
+      debouncedPriceRange[0] > 0 ? debouncedPriceRange[0].toString() : null,
+    maxPrice:
+      debouncedPriceRange[1] < 1000 ? debouncedPriceRange[1].toString() : null,
+    minRating: filters.rating > 0 ? filters.rating.toString() : null,
+    colors: filters.colors.length > 0 ? filters.colors : null,
+    sizes: filters.sizes.length > 0 ? filters.sizes : null,
   });
 
   const handleCollectionChange = (collection: string) => {
-    setSelectedCollection(collection);
-    const categoryValue =
-      collection !== "All" ? categoryToEnum[collection] : null;
-
-    if (collection !== "All") {
-      const categoryPath = Object.keys(categoryToEnum)
-        .find((key) => categoryToEnum[key] === categoryValue)
-        ?.toLowerCase();
-
-      if (categoryPath) {
-        const newParams = new URLSearchParams(searchParams);
-        if (categoryValue) {
-          newParams.set("category", categoryValue);
-        }
-        navigate(`/search/${categoryPath}?${newParams.toString()}`);
-      } else {
-        updateSearchParams("category", categoryValue);
-      }
-    } else {
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete("category");
-      navigate(`/search?${newParams.toString()}`);
-    }
+    const newFilters = { ...filters, collection };
+    setFilters(newFilters);
+    updateUrl(newFilters);
   };
 
   const handleSortChange = (sortName: string) => {
-    const sortValue = getSortValue(sortName);
-    setSelectedSort(sortName);
-    updateSearchParams("sort", sortValue);
+    const newFilters = { ...filters, sort: sortName };
+    setFilters(newFilters);
+    updateUrl(newFilters);
   };
 
   const handlePriceRangeChange = (values: number[]) => {
-    setPriceRange([values[0], values[1]]);
-    setAutoApplyFilters(true);
-  };
-
-  const handleApplyFilters = () => {
-    const newParams = new URLSearchParams(searchParams);
-
-    if (priceRange[0] > 0) {
-      newParams.set("minPrice", priceRange[0].toString());
-    } else {
-      newParams.delete("minPrice");
-    }
-
-    if (priceRange[1] < 1000) {
-      newParams.set("maxPrice", priceRange[1].toString());
-    } else {
-      newParams.delete("maxPrice");
-    }
-
-    if (selectedColors.length > 0) {
-      newParams.set("colors", selectedColors.join(","));
-    } else {
-      newParams.delete("colors");
-    }
-
-    if (selectedSizes.length > 0) {
-      newParams.set("sizes", selectedSizes.join(","));
-    } else {
-      newParams.delete("sizes");
-    }
-
-    if (selectedRating > 0) {
-      newParams.set("minRating", selectedRating.toString());
-    } else {
-      newParams.delete("minRating");
-    }
-
-    navigate(`/search?${newParams.toString()}`);
-  };
-
-  const updateSearchParams = (key: string, value: string | null) => {
-    const newParams = new URLSearchParams(searchParams);
-    if (value) {
-      newParams.set(key, value);
-    } else {
-      newParams.delete(key);
-    }
-    navigate(`/search?${newParams.toString()}`);
+    setFilters((prev) => ({ ...prev, priceRange: [values[0], values[1]] }));
   };
 
   const handleColorToggle = (color: string) => {
-    setSelectedColors((prev) => {
-      if (prev.includes(color)) {
-        return prev.filter((c) => c !== color);
-      } else {
-        return [...prev, color];
-      }
+    setFilters((prev) => {
+      const newColors = prev.colors.includes(color)
+        ? prev.colors.filter((c) => c !== color)
+        : [...prev.colors, color];
+      const newFilters = { ...prev, colors: newColors };
+      updateUrl(newFilters, true);
+      return newFilters;
     });
   };
 
   const handleSizeToggle = (size: string) => {
-    setSelectedSizes((prev) => {
-      if (prev.includes(size)) {
-        return prev.filter((s) => s !== size);
-      } else {
-        return [...prev, size];
-      }
+    setFilters((prev) => {
+      const newSizes = prev.sizes.includes(size)
+        ? prev.sizes.filter((s) => s !== size)
+        : [...prev.sizes, size];
+      const newFilters = { ...prev, sizes: newSizes };
+      updateUrl(newFilters, true);
+      return newFilters;
     });
   };
 
   const handleRatingChange = (rating: number) => {
-    setSelectedRating(rating === selectedRating ? 0 : rating);
+    setFilters((prev) => {
+      const newRating = rating === prev.rating ? 0 : rating;
+      const newFilters = { ...prev, rating: newRating };
+      updateUrl(newFilters, true);
+      return newFilters;
+    });
   };
 
   const renderRatingStars = (rating: number) => {
@@ -343,18 +301,20 @@ const Search = () => {
   };
 
   const products = data?.products || [];
-  const facets: FacetData = data?.facets || {
+  const facets = data?.facets || {
     categories: [],
     priceRange: { min: 0, max: 1000 },
     colors: [],
     sizes: [],
     ratings: [],
   };
+  const sliderMax = facets.priceRange?.max || 1000;
 
   return (
     <div className="min-h-[60vh]">
       <div className="py-4 text-lg">
-        Search Results for <span className="font-bold">{searchTerm}</span>
+        Search Results for{" "}
+        <span className="font-bold">{searchTerm || "All Products"}</span>
       </div>
 
       <div className="flex flex-col gap-4 md:flex-row">
@@ -390,32 +350,49 @@ const Search = () => {
               <AccordionItem value="categories">
                 <AccordionTrigger>Collections</AccordionTrigger>
                 <AccordionContent>
-                  <div className="flex flex-col gap-2">
-                    {categories.map((category) => (
-                      <div
-                        key={category.key}
-                        className={`cursor-pointer hover:text-blue-600 ${selectedCollection === category.name ? "font-semibold text-blue-600" : ""}`}
-                        onClick={() => handleCollectionChange(category.name)}
+                  <ul className="space-y-3">
+                    <li>
+                      <button
+                        onClick={() => handleCollectionChange("All")}
+                        className={`w-full text-left text-sm ${
+                          filters.collection === "All"
+                            ? "font-semibold text-blue-600"
+                            : "text-gray-600 hover:text-gray-900"
+                        }`}
                       >
-                        {category.name}
-                        {facets.categories.find(
-                          (c: CategoryFacet) =>
-                            c.category === categoryToEnum[category.name],
-                        )?.["_count"]?.category && (
-                          <span className="ml-2 text-sm text-gray-500">
-                            (
-                            {
-                              facets.categories.find(
-                                (c: CategoryFacet) =>
-                                  c.category === categoryToEnum[category.name],
-                              )?.["_count"]?.category
+                        All
+                      </button>
+                    </li>
+                    {categories.map((category) => {
+                      const categoryEnum = categoryToEnum[category.name];
+                      const count =
+                        facets.categories.find(
+                          (f) => f.category === categoryEnum,
+                        )?._count?.category || 0;
+
+                      return (
+                        <li key={category.key}>
+                          <button
+                            onClick={() =>
+                              handleCollectionChange(category.name)
                             }
-                            )
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                            className={`flex w-full items-center justify-between text-left text-sm ${
+                              filters.collection === category.name
+                                ? "font-semibold text-blue-600"
+                                : "text-gray-600 hover:text-gray-900"
+                            }`}
+                          >
+                            <span>{category.name}</span>
+                            {count > 0 && (
+                              <span className="text-xs text-gray-400">
+                                ({count})
+                              </span>
+                            )}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </AccordionContent>
               </AccordionItem>
 
@@ -424,17 +401,16 @@ const Search = () => {
                 <AccordionContent>
                   <div className="px-2">
                     <Slider
-                      defaultValue={[0, 1000]}
-                      value={priceRange}
+                      value={filters.priceRange}
                       min={0}
-                      max={1000}
+                      max={sliderMax}
                       step={10}
                       onValueChange={handlePriceRangeChange}
                       className="mt-6"
                     />
                     <div className="flex items-center justify-between py-2 text-xs font-medium">
-                      <div>{formatCurrency(priceRange[0])}</div>
-                      <div>{formatCurrency(priceRange[1])}</div>
+                      <div>{formatCurrency(filters.priceRange[0])}</div>
+                      <div>{formatCurrency(filters.priceRange[1])}</div>
                     </div>
                   </div>
                 </AccordionContent>
@@ -447,7 +423,7 @@ const Search = () => {
                     {[5, 4, 3, 2, 1].map((rating) => (
                       <div
                         key={rating}
-                        className={`flex cursor-pointer items-center gap-2 ${selectedRating === rating ? "font-semibold" : ""}`}
+                        className={`flex cursor-pointer items-center gap-2 ${filters.rating === rating ? "font-semibold" : ""}`}
                         onClick={() => handleRatingChange(rating)}
                       >
                         <div className="flex">{renderRatingStars(rating)}</div>
@@ -462,41 +438,44 @@ const Search = () => {
                 <AccordionTrigger>Colors</AccordionTrigger>
                 <AccordionContent>
                   <div className="flex flex-col gap-2">
-                    {colorOptions.map((color) => (
-                      <div
-                        key={color.value}
-                        className="flex items-center gap-2"
-                      >
-                        <Checkbox
-                          checked={selectedColors.includes(color.value)}
-                          onCheckedChange={() => handleColorToggle(color.value)}
-                          id={`color-${color.value}`}
-                        />
-                        <label
-                          htmlFor={`color-${color.value}`}
-                          className="flex cursor-pointer items-center gap-2"
+                    {colorOptions.map((color) => {
+                      const facetCount = facets.colors.find(
+                        (c) => c.name === color.value,
+                      )?.count;
+                      const isSelected = filters.colors.includes(color.value);
+                      const isDisabled = !isSelected && !facetCount;
+
+                      return (
+                        <div
+                          key={color.value}
+                          className={`flex items-center gap-2 ${isDisabled ? "opacity-50" : ""}`}
                         >
-                          <div
-                            className="h-4 w-4 rounded-full"
-                            style={{ backgroundColor: color.value }}
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() =>
+                              !isDisabled && handleColorToggle(color.value)
+                            }
+                            id={`color-${color.value}`}
+                            disabled={isDisabled}
                           />
-                          {color.name}
-                          {facets.colors.find(
-                            (c: ColorFacet) => c.name === color.value,
-                          )?.count && (
-                            <span className="text-sm text-gray-500">
-                              (
-                              {
-                                facets.colors.find(
-                                  (c: ColorFacet) => c.name === color.value,
-                                )?.count
-                              }
-                              )
-                            </span>
-                          )}
-                        </label>
-                      </div>
-                    ))}
+                          <label
+                            htmlFor={`color-${color.value}`}
+                            className={`flex cursor-pointer items-center gap-2 ${isDisabled ? "cursor-not-allowed" : ""}`}
+                          >
+                            <div
+                              className="h-4 w-4 rounded-full border"
+                              style={{ backgroundColor: color.value }}
+                            />
+                            {color.name}
+                            {facetCount && (
+                              <span className="text-xs text-gray-400">
+                                ({facetCount})
+                              </span>
+                            )}
+                          </label>
+                        </div>
+                      );
+                    })}
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -505,32 +484,41 @@ const Search = () => {
                 <AccordionTrigger>Sizes</AccordionTrigger>
                 <AccordionContent>
                   <div className="flex flex-wrap gap-2">
-                    {sizeOptions.map((size) => (
-                      <div
-                        key={size.value}
-                        className={`cursor-pointer rounded border px-3 py-1 ${
-                          selectedSizes.includes(size.value)
-                            ? "border-blue-600 bg-blue-50 text-blue-600"
-                            : "border-gray-300"
-                        }`}
-                        onClick={() => handleSizeToggle(size.value)}
-                      >
-                        {size.name}
-                      </div>
-                    ))}
+                    {sizeOptions.map((size) => {
+                      const facetCount = facets.sizes.find(
+                        (s: { name: string; count: number }) =>
+                          s.name === size.value,
+                      )?.count;
+                      const isSelected = filters.sizes.includes(size.value);
+                      const isDisabled = !isSelected && !facetCount;
+
+                      return (
+                        <div
+                          key={size.value}
+                          className={`cursor-pointer rounded border px-3 py-1 ${
+                            isSelected
+                              ? "border-blue-600 bg-blue-50 text-blue-600"
+                              : isDisabled
+                                ? "cursor-not-allowed border-gray-200 text-gray-400"
+                                : "border-gray-300 hover:border-gray-400"
+                          }`}
+                          onClick={() =>
+                            !isDisabled && handleSizeToggle(size.value)
+                          }
+                        >
+                          {size.name}
+                        </div>
+                      );
+                    })}
                   </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-
-            <Button onClick={handleApplyFilters} className="w-full">
-              Apply All Filters
-            </Button>
           </div>
         </div>
 
         <div className="flex-1">
-          {isLoading ? (
+          {isLoading && products.length === 0 ? (
             <div className="flex h-64 items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
             </div>
@@ -565,11 +553,14 @@ const Search = () => {
                 <div>
                   <span className="font-medium">{products.length}</span>{" "}
                   products found
+                  {isLoading && (
+                    <Loader2 className="ml-2 inline h-4 w-4 animate-spin" />
+                  )}{" "}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">Sort By:</span>
                   <select
-                    value={selectedSort}
+                    value={filters.sort}
                     onChange={(e) => handleSortChange(e.target.value)}
                     className="rounded border p-1 text-sm"
                   >
@@ -594,34 +585,32 @@ const Search = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                  {recentlyViewedProducts
-                    .slice(0, 5)
-                    .map((product: RecentlyViewedProduct) => (
-                      <Link
-                        key={product.id}
-                        to={`/product/${product.id}`}
-                        className="group"
-                      >
-                        <div className="aspect-square overflow-hidden rounded-md bg-gray-100">
-                          <img
-                            src={product.imageUrl}
-                            alt={product.name}
-                            className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                          />
+                  {recentlyViewedProducts.slice(0, 5).map((product) => (
+                    <Link
+                      key={product.id}
+                      to={`/product/${product.id}`}
+                      className="group"
+                    >
+                      <div className="aspect-square overflow-hidden rounded-md bg-gray-100">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="mt-2">
+                        <div className="truncate font-medium">
+                          {product.name}
                         </div>
-                        <div className="mt-2">
-                          <div className="truncate font-medium">
-                            {product.name}
-                          </div>
-                          <div className="flex items-center gap-1 text-sm text-gray-500">
-                            {renderRatingStars(product.rating)}
-                          </div>
-                          <div className="mt-2 font-medium text-gray-900">
-                            {formatCurrency(product.price)}
-                          </div>
+                        <div className="flex items-center gap-1 text-sm text-gray-500">
+                          {renderRatingStars(product.rating)}
                         </div>
-                      </Link>
-                    ))}
+                        <div className="mt-2 font-medium text-gray-900">
+                          {formatCurrency(product.price)}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               )}
             </div>
