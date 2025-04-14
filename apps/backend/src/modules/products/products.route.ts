@@ -120,7 +120,7 @@ export async function productsRoutes(app: FastifyInstance) {
       console.log("Search query:", search);
       console.log("Sort option:", sort);
       console.log("Category filter:", category);
-      console.log("Price range:", minPrice, "-", maxPrice);
+      console.log("Price range (dollars):", minPrice, "-", maxPrice);
       console.log("Min rating:", minRating);
       console.log("Colors:", colors);
       console.log("Sizes:", sizes);
@@ -157,11 +157,15 @@ export async function productsRoutes(app: FastifyInstance) {
         whereConditions.price = {};
 
         if (minPrice) {
-          whereConditions.price.gte = parseFloat(minPrice) * 100;
+          const minPriceCents = Math.round(parseFloat(minPrice) * 100);
+          console.log("Min price in cents:", minPriceCents);
+          whereConditions.price.gte = minPriceCents;
         }
 
         if (maxPrice) {
-          whereConditions.price.lte = parseFloat(maxPrice) * 100;
+          const maxPriceCents = Math.round(parseFloat(maxPrice) * 100);
+          console.log("Max price in cents:", maxPriceCents);
+          whereConditions.price.lte = maxPriceCents;
         }
       }
 

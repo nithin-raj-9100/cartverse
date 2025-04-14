@@ -74,8 +74,8 @@ const Search = () => {
 
     return {
       priceRange: [
-        minPriceParam ? parseInt(minPriceParam) : 0,
-        maxPriceParam ? parseInt(maxPriceParam) : 1000,
+        minPriceParam ? parseFloat(minPriceParam) * 100 : 0,
+        maxPriceParam ? parseFloat(maxPriceParam) * 100 : 20000,
       ],
       colors: colorsParam,
       sizes: sizesParam,
@@ -166,12 +166,16 @@ const Search = () => {
       }
 
       if (newFilters.priceRange[0] > 0) {
-        params.set("minPrice", newFilters.priceRange[0].toString());
+        const minPriceDollars = Math.round(newFilters.priceRange[0] / 100);
+        params.set("minPrice", minPriceDollars.toString());
       } else {
         params.delete("minPrice");
       }
-      if (newFilters.priceRange[1] < 1000) {
-        params.set("maxPrice", newFilters.priceRange[1].toString());
+
+      const defaultMaxPrice = 20000; // $200.00 in cents
+      if (newFilters.priceRange[1] < defaultMaxPrice) {
+        const maxPriceDollars = Math.round(newFilters.priceRange[1] / 100);
+        params.set("maxPrice", maxPriceDollars.toString());
       } else {
         params.delete("maxPrice");
       }
@@ -205,7 +209,7 @@ const Search = () => {
     const debouncedMin =
       debouncedPriceRange[0] > 0 ? debouncedPriceRange[0].toString() : null;
     const debouncedMax =
-      debouncedPriceRange[1] < 1000 ? debouncedPriceRange[1].toString() : null;
+      debouncedPriceRange[1] < 20000 ? debouncedPriceRange[1].toString() : null;
 
     if (currentMin !== debouncedMin || currentMax !== debouncedMax) {
       updateUrl(
@@ -229,7 +233,7 @@ const Search = () => {
     minPrice:
       debouncedPriceRange[0] > 0 ? debouncedPriceRange[0].toString() : null,
     maxPrice:
-      debouncedPriceRange[1] < 1000 ? debouncedPriceRange[1].toString() : null,
+      debouncedPriceRange[1] < 20000 ? debouncedPriceRange[1].toString() : null,
     minRating: filters.rating > 0 ? filters.rating.toString() : null,
     colors: filters.colors.length > 0 ? filters.colors : null,
     sizes: filters.sizes.length > 0 ? filters.sizes : null,
@@ -303,13 +307,11 @@ const Search = () => {
   const products = data?.products || [];
   const facets = data?.facets || {
     categories: [],
-    priceRange: { min: 0, max: 1000 },
+    priceRange: { min: 0, max: 100000 },
     colors: [],
     sizes: [],
     ratings: [],
   };
-  const sliderMax = facets.priceRange?.max || 1000;
-
   return (
     <div className="min-h-[60vh]">
       <div className="py-4 text-lg">
@@ -403,8 +405,8 @@ const Search = () => {
                     <Slider
                       value={filters.priceRange}
                       min={0}
-                      max={sliderMax}
-                      step={10}
+                      max={20000}
+                      step={100}
                       onValueChange={handlePriceRangeChange}
                       className="mt-6"
                     />

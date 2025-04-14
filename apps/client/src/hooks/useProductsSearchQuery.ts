@@ -52,9 +52,15 @@ export const useProductsSearchQuery = ({
 
       if (sortBy) params.append("sort", sortBy);
 
-      if (debouncedMinPrice) params.append("minPrice", debouncedMinPrice);
+      if (debouncedMinPrice) {
+        const minPriceDollars = Math.round(parseFloat(debouncedMinPrice) / 100);
+        params.append("minPrice", minPriceDollars.toString());
+      }
 
-      if (debouncedMaxPrice) params.append("maxPrice", debouncedMaxPrice);
+      if (debouncedMaxPrice) {
+        const maxPriceDollars = Math.round(parseFloat(debouncedMaxPrice) / 100);
+        params.append("maxPrice", maxPriceDollars.toString());
+      }
 
       if (minRating) params.append("minRating", minRating);
 
