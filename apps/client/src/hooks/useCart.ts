@@ -105,6 +105,7 @@ export function useRemoveCartItem() {
     mutationFn: async (productId: string) => {
       const response = await apiRequest(`/cart/${productId}`, {
         method: "DELETE",
+        body: JSON.stringify({}),
       });
 
       if (!response.ok) {
@@ -126,6 +127,7 @@ export function useClearCart() {
     mutationFn: async () => {
       const response = await apiRequest("/cart", {
         method: "DELETE",
+        body: JSON.stringify({}),
       });
 
       if (!response.ok) {
