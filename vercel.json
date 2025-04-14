@@ -1,7 +1,6 @@
 {
   "version": 2,
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "NODE_ENV=development pnpm install && pnpm run build",
   "installCommand": "pnpm install",
 
   "rewrites": [
