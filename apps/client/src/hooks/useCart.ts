@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCartStore } from "@/store/useCartStore";
-import { API_URL, apiRequest } from "@/lib/api-config";
+import { apiRequest } from "@/lib/api-config";
+import toast from "react-hot-toast";
 
 export interface CartItem {
   productId: string;
@@ -116,12 +117,25 @@ export function useRemoveCartItem() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast.success("Item removed from cart", {
+        duration: 2000,
+        icon: "🗑️",
+      });
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to remove item",
+        {
+          duration: 3000,
+        },
+      );
     },
   });
 }
 
 export function useClearCart() {
   const queryClient = useQueryClient();
+  const { setCartOpen } = useCartStore();
 
   return useMutation({
     mutationFn: async () => {
@@ -137,6 +151,19 @@ export function useClearCart() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast.success("Cart cleared successfully", {
+        duration: 2000,
+        icon: "🛒",
+      });
+      setCartOpen(false);
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to clear cart",
+        {
+          duration: 3000,
+        },
+      );
     },
   });
 }
