@@ -15,6 +15,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetPortal,
+  SheetDescription,
 } from "@/components/ui/sheet";
 
 export function CartSidebar() {
@@ -69,6 +70,9 @@ export function CartSidebar() {
                 </span>
               )}
             </div>
+            <SheetDescription className="sr-only">
+              Your shopping cart containing your selected items
+            </SheetDescription>
           </SheetHeader>
 
           <div className="flex-1 overflow-y-auto">

@@ -16,8 +16,6 @@ const ProductCard = ({ product }: { product: Product }) => {
     e.preventDefault();
     e.stopPropagation();
 
-    console.log("Adding to cart:", product.id);
-
     addToCart(
       {
         productId: product.id,
@@ -25,7 +23,6 @@ const ProductCard = ({ product }: { product: Product }) => {
       },
       {
         onSuccess: () => {
-          console.log("Successfully added to cart");
           setShowSuccess(true);
           setCartOpen(true);
           setTimeout(() => setShowSuccess(false), 2000);
