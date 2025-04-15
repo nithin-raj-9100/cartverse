@@ -16,7 +16,7 @@ type TempCartItem = {
 type CartItemType = CartItemWithProduct | TempCartItem;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  // apiVersion: "2023-10-16",
+  apiVersion: "2023-10-16" as any,
 });
 
 export async function createMockCheckoutSession(
@@ -113,36 +113,30 @@ export async function createMockCheckoutSession(
 export async function createCheckoutSession(
   userId: string,
   items: CheckoutItem[],
-  customerEmail?: string
+  customerEmail?: string,
+  customerName?: string,
+  billingAddress?: Stripe.AddressParam,
+  shippingAddressCollection?: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection,
+  forceMock?: boolean
 ) {
   try {
-    if (process.env.USE_MOCK_CHECKOUT === "true") {
+    if (process.env.USE_MOCK_CHECKOUT === "true" || forceMock) {
+      console.log("Using mock checkout", forceMock ? "(forced)" : "(from env)");
       return createMockCheckoutSession(userId, items, customerEmail);
     }
 
     let cartItems: CartItemType[] = await prisma.cartItem.findMany({
       where: {
-        cart: {
-          userId: userId,
-        },
-        productId: {
-          in: items.map((item) => item.productId),
-        },
+        cart: { userId: userId },
+        productId: { in: items.map((item) => item.productId) },
       },
-      include: {
-        product: true,
-      },
+      include: { product: true },
     });
 
     if (cartItems.length === 0) {
       const products = await prisma.product.findMany({
-        where: {
-          id: {
-            in: items.map((item) => item.productId),
-          },
-        },
+        where: { id: { in: items.map((item) => item.productId) } },
       });
-
       cartItems = products.map((product) => {
         const matchedItem = items.find((item) => item.productId === product.id);
         return {
@@ -153,19 +147,24 @@ export async function createCheckoutSession(
       });
     }
 
+    if (cartItems.length === 0) {
+      throw new Error("Cannot create checkout session with empty cart items.");
+    }
+
     const lineItems = cartItems.map((item) => {
       const matchedItem = items.find((i) => i.productId === item.productId);
+      const quantity = matchedItem ? matchedItem.quantity : item.quantity;
       return {
         price_data: {
-          currency: "usd",
+          currency: "inr",
           product_data: {
             name: item.product.name,
-            description: item.product.description,
+            description: item.product.description || undefined,
             images: item.product.imageUrl ? [item.product.imageUrl] : [],
           },
           unit_amount: Math.round(item.product.price * 100),
         },
-        quantity: matchedItem ? matchedItem.quantity : item.quantity,
+        quantity: quantity,
       };
     });
 
@@ -187,18 +186,39 @@ export async function createCheckoutSession(
       },
     });
 
-    const session = await stripe.checkout.sessions.create({
+    const sessionCreateParams: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
       success_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/checkout?canceled=true`,
+      cancel_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/checkout/failure`,
       metadata: {
         orderId: order.id,
         userId: userId,
       },
       customer_email: customerEmail,
-    });
+      billing_address_collection: "required",
+      customer_creation: "always" as const,
+      shipping_address_collection: shippingAddressCollection || {
+        allowed_countries: ["IN"],
+      },
+
+      shipping_options: [
+        {
+          shipping_rate_data: {
+            type: "fixed_amount",
+            fixed_amount: { amount: 0, currency: "inr" },
+            display_name: "Free shipping",
+            delivery_estimate: {
+              minimum: { unit: "business_day", value: 3 },
+              maximum: { unit: "business_day", value: 5 },
+            },
+          },
+        },
+      ],
+    };
+
+    const session = await stripe.checkout.sessions.create(sessionCreateParams);
 
     await prisma.order.update({
       where: { id: order.id },
@@ -208,6 +228,14 @@ export async function createCheckoutSession(
     return { sessionId: session.id, url: session.url };
   } catch (error) {
     console.error("Error creating checkout session:", error);
+    if (error instanceof Stripe.errors.StripeError) {
+      console.error("Stripe Error Code:", error.code);
+      console.error("Stripe Error Type:", error.type);
+      console.error("Stripe Error Message:", error.message);
+      if (error.type === "StripeInvalidRequestError") {
+        console.error("Stripe Param:", error.param);
+      }
+    }
     throw error;
   }
 }
@@ -216,25 +244,33 @@ export async function handleWebhookEvent(payload: Buffer, signature: string) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   try {
-    let event;
+    let event: Stripe.Event;
 
-    if (webhookSecret) {
-      event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
-    } else {
+    if (!webhookSecret) {
+      console.error("Stripe webhook secret is not configured.");
       throw new Error("Webhook secret is not configured");
     }
+
+    event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
 
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
 
         if (session.metadata?.orderId) {
+          const paymentIntentId =
+            typeof session.payment_intent === "string"
+              ? session.payment_intent
+              : null;
+          if (!paymentIntentId) {
+            throw new Error("Payment intent ID missing or not a string");
+          }
           await prisma.order.update({
             where: { id: session.metadata.orderId },
             data: {
               status: "COMPLETED",
               paymentStatus: "PAID",
-              paymentId: session.payment_intent as string,
+              paymentId: paymentIntentId,
             },
           });
 
@@ -249,6 +285,10 @@ export async function handleWebhookEvent(payload: Buffer, signature: string) {
               });
             }
           }
+        } else {
+          throw new Error(
+            "Checkout session completed event missing orderId metadata"
+          );
         }
         break;
       }
@@ -256,18 +296,90 @@ export async function handleWebhookEvent(payload: Buffer, signature: string) {
         const session = event.data.object as Stripe.Checkout.Session;
 
         if (session.metadata?.orderId) {
-          await prisma.order.update({
+          console.log("Attempting to cancel order:", session.metadata.orderId);
+          const currentOrder = await prisma.order.findUnique({
             where: { id: session.metadata.orderId },
-            data: { status: "CANCELLED" },
+            select: { status: true },
           });
+          if (currentOrder && currentOrder.status === "PENDING") {
+            await prisma.order.update({
+              where: { id: session.metadata.orderId },
+              data: { status: "CANCELLED" },
+            });
+            console.log("Order cancelled:", session.metadata.orderId);
+          } else {
+            console.log(
+              "Order not cancelled as it was not PENDING:",
+              session.metadata.orderId,
+              "Status:",
+              currentOrder?.status
+            );
+          }
+        } else {
+          console.warn(
+            "Checkout session expired event missing orderId metadata:",
+            session.id
+          );
         }
         break;
       }
+      case "payment_intent.payment_failed": {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        console.log(
+          "PaymentIntent failed:",
+          paymentIntent.id,
+          "Reason:",
+          paymentIntent.last_payment_error?.message
+        );
+        const charge = paymentIntent.latest_charge
+          ? typeof paymentIntent.latest_charge === "string"
+            ? await stripe.charges.retrieve(paymentIntent.latest_charge)
+            : paymentIntent.latest_charge
+          : null;
+        const orderId =
+          paymentIntent.metadata?.orderId || charge?.metadata?.orderId;
+
+        if (orderId) {
+          console.log("Updating order status to FAILED for order:", orderId);
+          const currentOrder = await prisma.order.findUnique({
+            where: { id: orderId },
+            select: { status: true },
+          });
+          if (currentOrder && currentOrder.status === "PENDING") {
+            await prisma.order.update({
+              where: { id: orderId },
+              data: { status: "FAILED", paymentStatus: "FAILED" },
+            });
+            console.log("Order status updated to FAILED:", orderId);
+          } else {
+            console.log(
+              "Order status not updated to FAILED as it was not PENDING:",
+              orderId,
+              "Status:",
+              currentOrder?.status
+            );
+          }
+        } else {
+          console.warn(
+            "PaymentIntent failed event missing orderId metadata:",
+            paymentIntent.id
+          );
+        }
+        break;
+      }
+      default: {
+        console.log(`Unhandled webhook event type: ${event.type}`);
+      }
     }
 
-    return { received: true };
+    return { received: true, eventType: event.type };
   } catch (error) {
     console.error("Error handling webhook event:", error);
+    if (error instanceof Stripe.errors.StripeSignatureVerificationError) {
+      console.error(
+        "Webhook signature verification failed. Check your webhook secret and ensure you are using the raw request body."
+      );
+    }
     throw error;
   }
 }

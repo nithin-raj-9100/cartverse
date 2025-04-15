@@ -26,29 +26,50 @@ export default function CheckoutSuccess() {
   }, [sessionId, queryClient]);
 
   return (
-    <div className="container mx-auto my-16 max-w-2xl text-center">
-      <div className="rounded-lg border border-green-100 bg-green-50 p-8">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-          <CheckCircle className="h-10 w-10 text-green-500" />
+    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white px-4 py-12 pt-32 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-2xl">
+        <div className="mb-16 text-center">
+          <CheckCircle className="mx-auto h-20 w-20 animate-bounce text-emerald-600" />
+          <h1 className="mt-6 text-4xl font-bold text-gray-900">
+            Payment Successful!
+          </h1>
+          <p className="mt-4 text-lg text-gray-600">
+            Thank you for your purchase! Your transaction is complete.
+          </p>
         </div>
 
-        <h1 className="mb-2 text-2xl font-bold text-green-800">
-          Order Successful!
-        </h1>
-
-        <p className="mb-6 text-gray-600">
-          Thank you for your purchase. Your order has been processed
-          successfully.
-        </p>
+        <div className="rounded-2xl bg-white p-8 shadow-xl sm:p-12">
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                What happens next?
+              </h3>
+              <div className="space-y-2 text-gray-600">
+                <p className="flex items-center">
+                  <span className="mr-2 h-2 w-2 rounded-full bg-emerald-500" />
+                  Your order is being processed
+                </p>
+                <p className="flex items-center">
+                  <span className="mr-2 h-2 w-2 rounded-full bg-emerald-500" />
+                  Check your order any time in your account
+                </p>
+                <p className="flex items-center">
+                  <span className="mr-2 h-2 w-2 rounded-full bg-emerald-500" />
+                  Recieve your products at your doorstep
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {sessionId && (
-          <p className="mb-6 text-sm text-gray-500">
+          <p className="mt-6 text-center text-sm text-gray-500">
             Order reference: <span className="font-mono">{sessionId}</span>
           </p>
         )}
 
         {isMockSession && (
-          <div className="mb-6 rounded-md border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800">
+          <div className="mt-6 rounded-md border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800">
             <p className="font-semibold">Mock Payment Mode</p>
             <p className="mt-1">
               This is a simulated checkout experience for development purposes.
@@ -58,7 +79,7 @@ export default function CheckoutSuccess() {
           </div>
         )}
 
-        <div className="flex justify-center space-x-4">
+        <div className="mt-8 flex justify-center space-x-4">
           <Button asChild variant="outline">
             <Link to="/products">Continue Shopping</Link>
           </Button>

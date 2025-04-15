@@ -11,6 +11,7 @@ import ErrorPage from "./pages/ErrorPage";
 import Search from "./pages/Search";
 import CheckoutPage from "./pages/Checkout";
 import CheckoutSuccess from "./pages/checkout-success";
+import CheckoutFailure from "./pages/checkout-failure";
 import OrdersPage from "./pages/OrdersPage";
 import ProfilePage from "./pages/ProfilePage";
 
@@ -46,6 +47,10 @@ export const routes = [
           {
             path: "checkout/success",
             element: <CheckoutSuccess />,
+          },
+          {
+            path: "checkout/failure",
+            element: <CheckoutFailure />,
           },
           {
             path: "orders",

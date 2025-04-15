@@ -1,4 +1,3 @@
-// just imorting this file will into index.ts will start the server
 import Fastify, { FastifyInstance } from "fastify";
 import fastifyCookie from "@fastify/cookie";
 import { registerPlugins } from "./modules/plugins/index.js";
@@ -34,23 +33,12 @@ export async function createApp() {
     origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "Stripe-Signature"],
   });
-
-  // app.addHook("onRequest", (req, _reply, done) => {
-  //   console.log(`Request received: ${req.method} ${req.url}`);
-  //   console.log(`Origin: ${req.headers.origin}`);
-  //   done();
-  // });
 
   if (isProduction) {
     app.register(
       async (instance) => {
-        instance.addHook("onRequest", (req, _reply, done) => {
-          console.log(`Request received: ${req.url}`);
-          done();
-        });
-
         await registerRoutes(instance);
       },
       { prefix: "/api" }
@@ -62,23 +50,23 @@ export async function createApp() {
 
   app.addContentTypeParser(
     "application/json",
-    { parseAs: "string" },
-    (_req, body, done) => {
+    { parseAs: "buffer" },
+    (req, body, done) => {
       try {
-        const json = JSON.parse(body as string);
+        if (
+          req.url === "/payment/webhook" ||
+          req.url === "/api/payment/webhook"
+        ) {
+          req.rawBody = body as Buffer;
+        }
+
+        const json = JSON.parse(body.toString());
         done(null, json);
       } catch (err) {
         done(err as Error, undefined);
       }
     }
   );
-
-  app.addHook("preHandler", (request, _reply, done) => {
-    if (request.url === "/payment/webhook" && request.method === "POST") {
-      request.rawBody = request.body as unknown as Buffer;
-    }
-    done();
-  });
 
   await app.register(fastifyCookie, {
     secret: process.env.COOKIE_SECRET || "my_secret",
@@ -91,21 +79,6 @@ export async function createApp() {
       domain: undefined,
     },
   });
-
-  app.addHook("onRequest", async (request) => {
-    if (request.url.startsWith("/auth/github")) {
-      request.log.info(
-        {
-          url: request.url,
-          method: request.method,
-          headers: request.headers,
-          query: request.query,
-        },
-        "GitHub OAuth request"
-      );
-    }
-  });
-  // console.log("Fastify app created with plugins", app.printPlugins());
 
   return app;
 }
