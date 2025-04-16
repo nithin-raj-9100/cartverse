@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { wait } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { useClearCart } from "@/hooks/useCart";
 
 export default function CheckoutSuccess() {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const isMockSession = sessionId?.startsWith("mock_");
   const queryClient = useQueryClient();
+  const { mutate: clearCart } = useClearCart();
 
   useEffect(() => {
     toast.success("Payment Completed Successfully!", {
@@ -19,11 +21,12 @@ export default function CheckoutSuccess() {
     });
 
     if (sessionId) {
-      wait(1500).then(() => {
+      wait(1000).then(() => {
+        clearCart();
         queryClient.invalidateQueries({ queryKey: ["cart"] });
       });
     }
-  }, [sessionId, queryClient]);
+  }, [sessionId, queryClient, clearCart]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white px-4 py-12 pt-32 sm:px-6 lg:px-8">
