@@ -64,8 +64,8 @@ const ProductCard = ({ product }: { product: Product }) => {
           />
         </div>
         <div className="mt-4">
-          <div className="flex items-start justify-between">
-            <div>
+          <div className="flex items-start justify-between space-x-2">
+            <div className="min-w-0 flex-1">
               <h3 className="text-sm font-medium text-foreground">
                 {product.name}
               </h3>
@@ -75,11 +75,11 @@ const ProductCard = ({ product }: { product: Product }) => {
                   ({product.rating.toFixed(1)})
                 </span>
               </div>
-              <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+              <p className="mt-1 line-clamp-2 overflow-hidden text-ellipsis text-sm text-muted-foreground">
                 {product.description}
               </p>
             </div>
-            <div className="text-right">
+            <div className="ml-2 min-w-[90px] flex-shrink-0 text-right">
               <p className="text-sm font-semibold text-foreground">
                 {formatCurrency(product.price)}
               </p>
