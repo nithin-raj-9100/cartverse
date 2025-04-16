@@ -105,6 +105,10 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
               </button>
             </div>
 
+            <div className="px-4 py-2">
+              <SearchComponent />
+            </div>
+
             {/* Links */}
             <TabGroup className="mt-2">
               <div className="border-b border-gray-200">
@@ -376,14 +380,14 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
               </PopoverGroup>
 
               <div className="ml-auto flex items-center">
-                <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  {/* Search */}
-                  <div className="flex lg:ml-6">
+                <div className="hidden sm:flex md:mr-2 lg:ml-6">
+                  <div className="w-full max-w-[200px] md:max-w-[250px] lg:max-w-none">
                     <SearchComponent />
                   </div>
+                </div>
 
-                  {/* Cart */}
-                  <div className="ml-4 flow-root lg:ml-6">
+                <div className="flex items-center">
+                  <div className="ml-4 flow-root">
                     <Link
                       to="/"
                       className="group -m-2 flex items-center p-2"
@@ -403,7 +407,6 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                     </Link>
                   </div>
 
-                  {/* User Profile Menu */}
                   {data?.status === "authenticated" ? (
                     <div className="relative ml-4">
                       <Popover>
@@ -421,13 +424,13 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                               )}
                             >
                               <UserCircleIcon className="h-6 w-6" />
-                              <span className="max-w-[100px] truncate">
+                              <span className="hidden max-w-[100px] truncate md:block">
                                 {/* @ts-expect-error FIXIT: */}
                                 {data.user.name}
                               </span>
                               <svg
                                 className={cn(
-                                  "ml-1 h-4 w-4 transition-transform",
+                                  "ml-1 hidden h-4 w-4 transition-transform md:block",
                                   open ? "rotate-180 transform" : "",
                                 )}
                                 xmlns="http://www.w3.org/2000/svg"
@@ -484,27 +487,34 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                       </Popover>
                     </div>
                   ) : (
-                    <>
+                    <div className="ml-4 flex items-center">
                       <Link
                         to="/login"
                         className="text-sm font-medium text-gray-700 hover:text-gray-800"
                       >
-                        Login
+                        <span className="hidden sm:inline">Login</span>
+                        <UserCircleIcon className="h-6 w-6 sm:hidden" />
                       </Link>
                       <span
                         aria-hidden="true"
-                        className="h-6 w-px bg-gray-200"
+                        className="mx-2 hidden h-6 w-px bg-gray-200 sm:block"
                       />
                       <Link
                         to="/signup"
-                        className="text-sm font-medium text-gray-700 hover:text-gray-800"
+                        className="hidden text-sm font-medium text-gray-700 hover:text-gray-800 sm:block"
                       >
                         Create account
                       </Link>
-                    </>
+                    </div>
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div className="border-b border-gray-200 py-2 sm:hidden">
+            <div className="mx-auto max-w-full px-4">
+              <SearchComponent />
             </div>
           </div>
         </nav>

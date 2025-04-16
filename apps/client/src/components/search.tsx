@@ -288,7 +288,7 @@ export function SearchComponent() {
         <div className="relative">
           <Input
             ref={inputRef}
-            className="peer pe-9 ps-9"
+            className="peer rounded-md border border-gray-300 pe-9 ps-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             placeholder="Search Products..."
             type="text"
             value={searchTerm}
@@ -331,8 +331,10 @@ export function SearchComponent() {
           id="search-suggestions"
           role="listbox"
           className={cn(
-            "absolute z-50 mt-2 max-h-80 w-[calc(100%+4rem)] -translate-x-8 overflow-y-auto overflow-x-hidden rounded-md border border-gray-200 bg-white shadow-lg",
+            "absolute z-50 mt-2 max-h-80 w-full min-w-full overflow-y-auto overflow-x-hidden rounded-md border border-gray-200 bg-white shadow-lg",
+            "sm:w-[calc(100%+4rem)] sm:-translate-x-8",
             "md:w-[calc(100%+2rem)] md:-translate-x-4",
+            "lg:w-[calc(100%+4rem)] lg:-translate-x-8",
           )}
         >
           {isLoading ? (
