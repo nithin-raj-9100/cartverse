@@ -17,6 +17,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { formatCurrency } from "@/lib/utils";
+import { Product } from "@/types";
 
 interface FiltersState {
   priceRange: [number, number];
@@ -291,10 +292,18 @@ const Search = () => {
     for (let i = 1; i <= 5; i++) {
       if (i <= rating) {
         stars.push(
-          <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />,
+          <Star
+            key={i}
+            className="h-3 w-3 fill-yellow-400 text-yellow-400 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4"
+          />,
         );
       } else {
-        stars.push(<Star key={i} className="h-4 w-4 text-gray-300" />);
+        stars.push(
+          <Star
+            key={i}
+            className="h-3 w-3 text-gray-300 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4"
+          />,
+        );
       }
     }
     return <div className="flex">{stars}</div>;
@@ -319,25 +328,36 @@ const Search = () => {
         <span className="font-bold">{searchTerm || "All Products"}</span>
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row">
-        <div className="w-full md:w-64 lg:w-72">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-xl font-semibold">Filters</h3>
+      <div className="mx-auto flex max-w-[2000px] flex-col gap-3 sm:gap-4 md:flex-row">
+        <div className="w-full shrink-0 overflow-hidden md:w-40 lg:w-44 xl:w-48 2xl:w-52">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h3 className="text-base font-semibold sm:text-lg md:text-lg">
+              Filters
+            </h3>
             <button
               onClick={toggleFilters}
-              className="text-sm text-blue-600 md:hidden"
+              className="flex items-center rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-blue-600 shadow-sm sm:text-sm md:hidden"
             >
-              {filterExpanded ? "Hide Filters" : "Show Filters"}
               {filterExpanded ? (
-                <ChevronUp className="ml-1 inline h-4 w-4" />
+                <>
+                  <ChevronUp className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+                  Hide Filters
+                </>
               ) : (
-                <ChevronDown className="ml-1 inline h-4 w-4" />
+                <>
+                  <ChevronDown className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+                  Show Filters
+                </>
               )}
             </button>
           </div>
 
           <div
-            className={`${filterExpanded ? "block" : "hidden md:block"} space-y-4`}
+            className={`${
+              filterExpanded
+                ? "max-h-[2000px] opacity-100"
+                : "max-h-0 opacity-0 md:max-h-[2000px] md:opacity-100"
+            } space-y-2 overflow-hidden rounded-md border border-gray-100 bg-white p-2 shadow-sm transition-all duration-300 ease-in-out sm:p-3 md:sticky md:top-4 lg:p-4`}
           >
             <Accordion
               type="multiple"
@@ -348,15 +368,21 @@ const Search = () => {
                 "colors",
                 "sizes",
               ]}
+              className="space-y-1.5 sm:space-y-2"
             >
-              <AccordionItem value="categories">
-                <AccordionTrigger>Collections</AccordionTrigger>
-                <AccordionContent>
-                  <ul className="space-y-3">
+              <AccordionItem
+                value="categories"
+                className="border-b border-gray-100"
+              >
+                <AccordionTrigger className="py-1.5 text-sm font-medium sm:py-2 sm:text-base">
+                  Collections
+                </AccordionTrigger>
+                <AccordionContent className="pb-1.5 pt-1 sm:pb-2">
+                  <ul className="space-y-1.5 sm:space-y-2">
                     <li>
                       <button
                         onClick={() => handleCollectionChange("All")}
-                        className={`w-full text-left text-sm ${
+                        className={`w-full text-left text-xs sm:text-sm ${
                           filters.collection === "All"
                             ? "font-semibold text-blue-600"
                             : "text-gray-600 hover:text-gray-900"
@@ -369,7 +395,10 @@ const Search = () => {
                       const categoryEnum = categoryToEnum[category.name];
                       const count =
                         facets.categories.find(
-                          (f) => f.category === categoryEnum,
+                          (f: {
+                            category: string;
+                            _count?: { category: number };
+                          }) => f.category === categoryEnum,
                         )?._count?.category || 0;
 
                       return (
@@ -378,7 +407,7 @@ const Search = () => {
                             onClick={() =>
                               handleCollectionChange(category.name)
                             }
-                            className={`flex w-full items-center justify-between text-left text-sm ${
+                            className={`flex w-full items-center justify-between text-left text-xs sm:text-sm ${
                               filters.collection === category.name
                                 ? "font-semibold text-blue-600"
                                 : "text-gray-600 hover:text-gray-900"
@@ -398,19 +427,21 @@ const Search = () => {
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="price">
-                <AccordionTrigger>Price Range</AccordionTrigger>
-                <AccordionContent>
-                  <div className="px-2">
+              <AccordionItem value="price" className="border-b border-gray-100">
+                <AccordionTrigger className="py-1.5 text-sm font-medium sm:py-2 sm:text-base">
+                  Price Range
+                </AccordionTrigger>
+                <AccordionContent className="pb-1.5 pt-1 sm:pb-2">
+                  <div className="px-0.5 sm:px-1 md:px-2">
                     <Slider
                       value={filters.priceRange}
                       min={0}
                       max={20000}
                       step={100}
                       onValueChange={handlePriceRangeChange}
-                      className="mt-6"
+                      className="mb-2 mt-2 sm:mt-3"
                     />
-                    <div className="flex items-center justify-between py-2 text-xs font-medium">
+                    <div className="flex items-center justify-between py-0.5 text-xs font-medium sm:py-1">
                       <div>{formatCurrency(filters.priceRange[0])}</div>
                       <div>{formatCurrency(filters.priceRange[1])}</div>
                     </div>
@@ -418,10 +449,15 @@ const Search = () => {
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="rating">
-                <AccordionTrigger>Rating</AccordionTrigger>
-                <AccordionContent>
-                  <div className="flex flex-col gap-3">
+              <AccordionItem
+                value="rating"
+                className="border-b border-gray-100"
+              >
+                <AccordionTrigger className="py-1.5 text-sm font-medium sm:py-2 sm:text-base">
+                  Rating
+                </AccordionTrigger>
+                <AccordionContent className="pb-1.5 pt-1 sm:pb-2">
+                  <div className="flex flex-col gap-1.5 sm:gap-2">
                     {[5, 4, 3, 2, 1].map((rating) => (
                       <div
                         key={rating}
@@ -429,20 +465,26 @@ const Search = () => {
                         onClick={() => handleRatingChange(rating)}
                       >
                         <div className="flex">{renderRatingStars(rating)}</div>
-                        <span>& Up</span>
+                        <span className="text-xs sm:text-sm">& Up</span>
                       </div>
                     ))}
                   </div>
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="colors">
-                <AccordionTrigger>Colors</AccordionTrigger>
-                <AccordionContent>
-                  <div className="flex flex-col gap-2">
+              <AccordionItem
+                value="colors"
+                className="border-b border-gray-100"
+              >
+                <AccordionTrigger className="py-1.5 text-sm font-medium sm:py-2 sm:text-base">
+                  Colors
+                </AccordionTrigger>
+                <AccordionContent className="pb-1.5 pt-1 sm:pb-2">
+                  <div className="flex flex-col gap-1.5 sm:gap-2">
                     {colorOptions.map((color) => {
                       const facetCount = facets.colors.find(
-                        (c) => c.name === color.value,
+                        (c: { name: string; count: number }) =>
+                          c.name === color.value,
                       )?.count;
                       const isSelected = filters.colors.includes(color.value);
                       const isDisabled = !isSelected && !facetCount;
@@ -450,7 +492,7 @@ const Search = () => {
                       return (
                         <div
                           key={color.value}
-                          className={`flex items-center gap-2 ${isDisabled ? "opacity-50" : ""}`}
+                          className={`flex items-center gap-1 sm:gap-1.5 ${isDisabled ? "opacity-50" : ""}`}
                         >
                           <Checkbox
                             checked={isSelected}
@@ -459,13 +501,14 @@ const Search = () => {
                             }
                             id={`color-${color.value}`}
                             disabled={isDisabled}
+                            className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4"
                           />
                           <label
                             htmlFor={`color-${color.value}`}
-                            className={`flex cursor-pointer items-center gap-2 ${isDisabled ? "cursor-not-allowed" : ""}`}
+                            className={`flex cursor-pointer items-center gap-1 text-xs sm:text-sm ${isDisabled ? "cursor-not-allowed" : ""}`}
                           >
                             <div
-                              className="h-4 w-4 rounded-full border"
+                              className="h-2.5 w-2.5 rounded-full border sm:h-3 sm:w-3 lg:h-4 lg:w-4"
                               style={{ backgroundColor: color.value }}
                             />
                             {color.name}
@@ -482,10 +525,12 @@ const Search = () => {
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="sizes">
-                <AccordionTrigger>Sizes</AccordionTrigger>
-                <AccordionContent>
-                  <div className="flex flex-wrap gap-2">
+              <AccordionItem value="sizes" className="border-b-0">
+                <AccordionTrigger className="py-1.5 text-sm font-medium sm:py-2 sm:text-base">
+                  Sizes
+                </AccordionTrigger>
+                <AccordionContent className="pb-1.5 pt-1 sm:pb-2">
+                  <div className="flex flex-wrap gap-1 sm:gap-1.5">
                     {sizeOptions.map((size) => {
                       const facetCount = facets.sizes.find(
                         (s: { name: string; count: number }) =>
@@ -497,7 +542,7 @@ const Search = () => {
                       return (
                         <div
                           key={size.value}
-                          className={`cursor-pointer rounded border px-3 py-1 ${
+                          className={`cursor-pointer rounded border px-1.5 py-0.5 text-xs sm:px-2 sm:py-0.5 lg:px-3 lg:py-1 lg:text-sm ${
                             isSelected
                               ? "border-blue-600 bg-blue-50 text-blue-600"
                               : isDisabled
@@ -519,7 +564,37 @@ const Search = () => {
           </div>
         </div>
 
-        <div className="flex-1">
+        <div className="min-w-0 flex-1 overflow-hidden md:pl-4 lg:pl-5">
+          <div className="mb-2 flex flex-col justify-between gap-2 sm:mb-3 sm:flex-row sm:items-center md:mb-4">
+            <div>
+              <span className="text-xs text-gray-500 sm:text-sm">
+                {products.length}{" "}
+                {products.length === 1 ? "product" : "products"} found
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="sort-by"
+                className="whitespace-nowrap text-xs sm:text-sm"
+              >
+                Sort By:
+              </label>
+              <select
+                id="sort-by"
+                value={filters.sort}
+                onChange={(e) => handleSortChange(e.target.value)}
+                className="rounded-md border border-gray-300 px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:px-2 sm:py-1 sm:text-sm"
+              >
+                {sortBy.map((option) => (
+                  <option key={option.key} value={option.name}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           {isLoading && products.length === 0 ? (
             <div className="flex h-64 items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
@@ -551,29 +626,6 @@ const Search = () => {
             </div>
           ) : (
             <div>
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <span className="font-medium">{products.length}</span>{" "}
-                  products found
-                  {isLoading && (
-                    <Loader2 className="ml-2 inline h-4 w-4 animate-spin" />
-                  )}{" "}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">Sort By:</span>
-                  <select
-                    value={filters.sort}
-                    onChange={(e) => handleSortChange(e.target.value)}
-                    className="rounded border p-1 text-sm"
-                  >
-                    {sortBy.map((sort) => (
-                      <option key={sort.key} value={sort.name}>
-                        {sort.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
               <ProductGrid products={products} />
             </div>
           )}
@@ -586,33 +638,36 @@ const Search = () => {
                   <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                  {recentlyViewedProducts.slice(0, 5).map((product) => (
-                    <Link
-                      key={product.id}
-                      to={`/product/${product.id}`}
-                      className="group"
-                    >
-                      <div className="aspect-square overflow-hidden rounded-md bg-gray-100">
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                        />
-                      </div>
-                      <div className="mt-2">
-                        <div className="truncate font-medium">
-                          {product.name}
+                <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {recentlyViewedProducts
+                    .slice(0, 5)
+                    .map((product: Product) => (
+                      <Link
+                        key={product.id}
+                        to={`/product/${product.id}`}
+                        className="group"
+                      >
+                        <div className="aspect-square overflow-hidden rounded-md bg-gray-100">
+                          <img
+                            src={product.imageUrl}
+                            alt={product.name}
+                            className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                          />
                         </div>
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          {renderRatingStars(product.rating)}
+                        <div className="mt-2">
+                          <div className="truncate font-medium">
+                            {product.name}
+                          </div>
+                          <div className="flex items-center gap-1 text-sm text-gray-500">
+                            {renderRatingStars(product.rating)}
+                            <span>{product.rating.toFixed(1)}</span>
+                          </div>
+                          <div className="mt-1 font-semibold">
+                            {formatCurrency(product.price)}
+                          </div>
                         </div>
-                        <div className="mt-2 font-medium text-gray-900">
-                          {formatCurrency(product.price)}
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    ))}
                 </div>
               )}
             </div>

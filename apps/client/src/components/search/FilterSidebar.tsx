@@ -61,24 +61,30 @@ export function FilterSidebar({
   const ratings = [5, 4, 3, 2, 1];
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-2 sm:gap-3 md:gap-4 lg:gap-5">
       <div>
-        <h3 className="mb-4 text-lg font-semibold">Categories</h3>
-        <div className="flex flex-col space-y-3">
+        <h3 className="mb-1.5 text-sm font-semibold sm:mb-2 sm:text-base lg:text-lg">
+          Categories
+        </h3>
+        <div className="flex flex-col space-y-1.5 sm:space-y-2">
           {categories.map((category) => (
-            <div key={category.key} className="flex items-center space-x-2">
+            <div
+              key={category.key}
+              className="flex items-center space-x-1.5 sm:space-x-2"
+            >
               <Checkbox
                 id={`category-${category.key}`}
                 checked={selectedCategory === category.name}
                 onCheckedChange={() => onCategoryChange(category.name)}
+                className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4"
               />
               <Label
                 htmlFor={`category-${category.key}`}
-                className="cursor-pointer text-sm font-medium"
+                className="cursor-pointer text-xs font-medium sm:text-sm"
               >
                 {category.name}
                 {productStats?.categoryCounts && category.name !== "All" && (
-                  <span className="ml-1 text-gray-500">
+                  <span className="ml-1 text-xs text-gray-500">
                     (
                     {productStats.categoryCounts[
                       categoryToEnum[category.name]
@@ -93,8 +99,10 @@ export function FilterSidebar({
       </div>
 
       <div>
-        <h3 className="mb-4 text-lg font-semibold">Price Range</h3>
-        <div className="px-2">
+        <h3 className="mb-1.5 text-sm font-semibold sm:mb-2 sm:text-base lg:text-lg">
+          Price Range
+        </h3>
+        <div className="px-0.5 sm:px-1 md:px-2">
           <Slider
             defaultValue={[priceRange[0], priceRange[1]]}
             value={[priceRange[0], priceRange[1]]}
@@ -102,28 +110,38 @@ export function FilterSidebar({
             max={productStats?.priceRange?.max || 1000}
             step={1}
             onValueChange={handlePriceChange}
-            className="mb-6"
+            className="mb-2 sm:mb-3 lg:mb-4"
           />
           <div className="flex items-center justify-between">
-            <span className="text-sm">{formatCurrency(priceRange[0])}</span>
-            <span className="text-sm">{formatCurrency(priceRange[1])}</span>
+            <span className="text-xs sm:text-sm">
+              {formatCurrency(priceRange[0])}
+            </span>
+            <span className="text-xs sm:text-sm">
+              {formatCurrency(priceRange[1])}
+            </span>
           </div>
         </div>
       </div>
 
       <div>
-        <h3 className="mb-4 text-lg font-semibold">Customer Ratings</h3>
-        <div className="flex flex-col space-y-3">
+        <h3 className="mb-1.5 text-sm font-semibold sm:mb-2 sm:text-base lg:text-lg">
+          Customer Ratings
+        </h3>
+        <div className="flex flex-col space-y-1.5 sm:space-y-2">
           {ratings.map((rating) => (
-            <div key={rating} className="flex items-center space-x-2">
+            <div
+              key={rating}
+              className="flex items-center space-x-1.5 sm:space-x-2"
+            >
               <Checkbox
                 id={`rating-${rating}`}
                 checked={selectedRating === rating}
                 onCheckedChange={() => onRatingChange(rating)}
+                className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4"
               />
               <Label
                 htmlFor={`rating-${rating}`}
-                className="flex cursor-pointer items-center space-x-1 text-sm font-medium"
+                className="flex cursor-pointer items-center space-x-0.5 text-xs font-medium sm:space-x-1 sm:text-sm"
               >
                 <span>{rating}★</span>
                 <span>& Above</span>
