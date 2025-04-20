@@ -9,6 +9,7 @@ import { useRecentlyViewedProducts } from "@/hooks/useRecentlyViewedProducts";
 import { useAuthStore } from "@/store/slices/auth";
 import { formatCurrency } from "@/lib/utils";
 import { Link } from "react-router";
+import { Lens } from "@/components/magicui/lens";
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -81,11 +82,18 @@ const ProductPage = () => {
                 SALE
               </div>
             )}
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              className="h-full w-full object-cover object-center"
-            />
+            <Lens
+              zoomFactor={2}
+              lensSize={150}
+              isStatic={false}
+              ariaLabel="Zoom Area"
+            >
+              <img
+                src={product.imageUrl}
+                alt={product.name}
+                className="h-full w-full object-cover object-center"
+              />
+            </Lens>
           </div>
 
           <div className="mt-10 lg:mt-0">

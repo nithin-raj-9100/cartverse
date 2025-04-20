@@ -184,6 +184,9 @@ importers:
       lucide-react:
         specifier: ^0.474.0
         version: 0.474.0(react@18.3.1)
+      motion:
+        specifier: ^12.7.4
+        version: 12.7.4(react-dom@18.3.1)(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -5312,6 +5315,27 @@ packages:
       tslib: 2.8.1
     dev: false
 
+  /framer-motion@12.7.4(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-jX0bPsTmU0oPZTYz/dVyD0dmOyEOEJvdn0TaZBE5I8g2GvVnnQnW9f65cJnoVfUkY3WZWNXGXnPbVA9YnaIfVA==}
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+    dependencies:
+      motion-dom: 12.7.4
+      motion-utils: 12.7.2
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      tslib: 2.8.1
+    dev: false
+
   /fs-minipass@1.2.7:
     resolution: {integrity: sha512-GWSSJGFy4e9GUeCcbIkED+bgAoFyj7XF1mV8rma3QW4NIqX9Kyx79N/PF61H5udOV3aY1IaMLs6pGbH71nlCTA==}
     dependencies:
@@ -6069,8 +6093,38 @@ packages:
       motion-utils: 12.0.0
     dev: false
 
+  /motion-dom@12.7.4:
+    resolution: {integrity: sha512-1ZUHAoSUMMxP6jPqyxlk9XUfb6NxMsnWPnH2YGhrOhTURLcXWbETi6eemoKb60Pe32NVJYduL4B62VQSO5Jq8Q==}
+    dependencies:
+      motion-utils: 12.7.2
+    dev: false
+
   /motion-utils@12.0.0:
     resolution: {integrity: sha512-MNFiBKbbqnmvOjkPyOKgHUp3Q6oiokLkI1bEwm5QA28cxMZrv0CbbBGDNmhF6DIXsi1pCQBSs0dX8xjeER1tmA==}
+    dev: false
+
+  /motion-utils@12.7.2:
+    resolution: {integrity: sha512-XhZwqctxyJs89oX00zn3OGCuIIpVevbTa+u82usWBC6pSHUd2AoNWiYa7Du8tJxJy9TFbZ82pcn5t7NOm1PHAw==}
+    dev: false
+
+  /motion@12.7.4(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-MBGrMbYageHw4iZJn+pGTr7abq5n53jCxYkhFC1It3vYukQPRWg5zij46MnwYGpLR8KG465MLHSASXot9edYOw==}
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+    dependencies:
+      framer-motion: 12.7.4(react-dom@18.3.1)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      tslib: 2.8.1
     dev: false
 
   /mri@1.2.0:

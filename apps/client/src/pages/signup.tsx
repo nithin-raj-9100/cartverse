@@ -33,7 +33,7 @@ export default function Signup() {
           >
             <img
               alt="CartVerse Logo"
-              src="/logo1.webp"
+              src="/logo/logo.png"
               className="h-12 w-auto"
             />
           </Link>

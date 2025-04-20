@@ -272,8 +272,8 @@ export function Navbar({ data }: { data: Record<string, unknown> }) {
                   <span className="sr-only">CartVerse</span>
                   <img
                     alt="CartVerse Logo"
-                    src="/logo1.webp"
-                    className="h-12 w-auto"
+                    src="/logo/logo.png"
+                    className="h-20 w-auto"
                   />
                 </Link>
               </div>
