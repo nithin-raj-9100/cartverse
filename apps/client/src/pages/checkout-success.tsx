@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router";
 import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { wait } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { useClearCart } from "@/hooks/useCart";
+import { Confetti, type ConfettiRef } from "@/components/magicui/confetti";
 
 export default function CheckoutSuccess() {
   const [searchParams] = useSearchParams();
@@ -28,8 +29,15 @@ export default function CheckoutSuccess() {
     }
   }, [sessionId, queryClient, clearCart]);
 
+  const confettiRef = useRef<ConfettiRef>(null);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white px-4 py-12 pt-32 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen px-4 py-12 pt-32 sm:px-6 lg:px-8">
+      <Confetti
+        ref={confettiRef}
+        className="pointer-events-none absolute left-0 top-0 z-0 size-full"
+      />
+
       <div className="mx-auto max-w-2xl">
         <div className="mb-16 text-center">
           <CheckCircle className="mx-auto h-20 w-20 animate-bounce text-emerald-600" />
