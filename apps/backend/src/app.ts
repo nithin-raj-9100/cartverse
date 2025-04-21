@@ -3,6 +3,7 @@ import fastifyCookie from "@fastify/cookie";
 import { registerPlugins } from "./modules/plugins/index.js";
 import { registerRoutes } from "./routes.js";
 import fastifyCors from "@fastify/cors";
+import { feedbackSchemas } from "./modules/feedback/feedback.schema";
 
 export async function createApp() {
   const isProduction = process.env.NODE_ENV === "production";
@@ -17,6 +18,10 @@ export async function createApp() {
     ignoreTrailingSlash: true,
     disableRequestLogging: isProduction,
   }) as FastifyInstance;
+
+  for (const schema of feedbackSchemas) {
+    app.addSchema(schema);
+  }
 
   const allowedOrigins = [
     clientUrl,

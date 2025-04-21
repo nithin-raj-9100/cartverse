@@ -1,4 +1,4 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, FastifyPluginOptions } from "fastify";
 import { productsRoutes } from "./modules/products/products.route";
 import authRoutes from "./modules/auth";
 import { loginRoutes } from "./modules/auth/login";
@@ -7,6 +7,31 @@ import { logoutRoutes } from "./modules/auth/logout";
 import cartRoutes from "./modules/cart";
 import paymentRoutes from "./modules/payment";
 import ordersRoutes from "./modules/orders";
+import { sendFeedbackHandler } from "./modules/feedback/feedback.controller";
+import { $ref as feedbackRef } from "./modules/feedback/feedback.schema";
+
+async function feedbackRoutes(
+  app: FastifyInstance,
+  options: FastifyPluginOptions
+) {
+  app.post(
+    "/send",
+    {
+      schema: {
+        body: feedbackRef("sendFeedbackSchema"),
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              message: { type: "string" },
+            },
+          },
+        },
+      },
+    },
+    sendFeedbackHandler
+  );
+}
 
 export async function registerRoutes(app: FastifyInstance) {
   // Auth routes
@@ -22,4 +47,6 @@ export async function registerRoutes(app: FastifyInstance) {
   await app.register(cartRoutes, { prefix: "/cart" });
   await app.register(paymentRoutes, { prefix: "/payment" });
   await app.register(ordersRoutes, { prefix: "/orders" });
+
+  await app.register(feedbackRoutes, { prefix: "/feedback" });
 }
