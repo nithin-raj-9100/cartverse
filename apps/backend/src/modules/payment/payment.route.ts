@@ -1,8 +1,5 @@
 import { FastifyInstance } from "fastify";
-import {
-  createCheckoutSessionHandler,
-  stripeWebhookHandler,
-} from "./payment.controller";
+import { createCheckoutSessionHandler } from "./payment.controller";
 import { validateSessionToken } from "../utils/auth";
 
 export async function paymentRoutes(app: FastifyInstance) {
@@ -38,12 +35,5 @@ export async function paymentRoutes(app: FastifyInstance) {
       }
     },
     handler: createCheckoutSessionHandler,
-  });
-
-  app.post("/webhook", {
-    config: {
-      rawBody: true,
-    },
-    handler: stripeWebhookHandler,
   });
 }
