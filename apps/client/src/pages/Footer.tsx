@@ -1,7 +1,13 @@
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone, MessageSquare } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { apiRequest } from "@/lib/api-config";
+import * as React from "react";
 
 // should make the below page routes
 const footerNavigation = {
@@ -33,6 +39,53 @@ const footerNavigation = {
 };
 
 const Footer = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [senderEmail, setSenderEmail] = useState("");
+  const [feedback, setFeedback] = useState("");
+
+  const handleFeedbackSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    if (!senderEmail) {
+      toast.error("Please enter your email address.");
+      return;
+    }
+    if (!feedback) {
+      toast.error("Please enter your feedback message.");
+      return;
+    }
+    if (feedback.length < 10) {
+      toast.error("Feedback must be at least 10 characters long.");
+      return;
+    }
+    setIsSubmitting(true);
+
+    try {
+      const response = await apiRequest("/feedback/send", {
+        method: "POST",
+        body: JSON.stringify({ senderEmail, feedback }),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to send feedback.");
+      }
+
+      toast.success("Thank you for your feedback!");
+      setSenderEmail("");
+      setFeedback("");
+    } catch (error: unknown) {
+      let errorMessage = "An unexpected error occurred.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <footer className="border-t bg-white" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">
@@ -55,21 +108,50 @@ const Footer = () => {
               our community for exclusive deals and updates.
             </p>
 
-            <div className="space-y-4">
+            <form className="space-y-4" onSubmit={handleFeedbackSubmit}>
               <h3 className="text-sm font-semibold text-gray-900">
-                Subscribe to our newsletter
+                Send us your feedback
               </h3>
-              <div className="flex gap-x-4">
+              <div>
+                <Label htmlFor="feedbackEmail" className="sr-only">
+                  Your Email
+                </Label>
                 <Input
+                  id="feedbackEmail"
                   type="email"
-                  placeholder="Enter your email"
-                  className="min-w-0 flex-1"
+                  placeholder="Your Email"
+                  value={senderEmail}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setSenderEmail(e.target.value)
+                  }
+                  aria-label="Your Email"
+                  required
                 />
-                <Button>Subscribe</Button>
               </div>
-            </div>
+              <div>
+                <Label htmlFor="feedbackMessage" className="sr-only">
+                  Feedback Message
+                </Label>
+                <Textarea
+                  id="feedbackMessage"
+                  placeholder="Your feedback message..."
+                  className="min-h-[80px]"
+                  value={feedback}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    setFeedback(e.target.value)
+                  }
+                  required
+                  minLength={5}
+                  aria-label="Feedback Message"
+                />
+              </div>
+              <Button type="submit" disabled={isSubmitting} className="w-full">
+                {isSubmitting ? "Sending..." : "Send Feedback"}
+                {!isSubmitting && <MessageSquare className="ml-2 h-4 w-4" />}
+              </Button>
+            </form>
 
-            <div className="space-y-4">
+            <div className="space-y-4 pt-4">
               <div className="flex items-center space-x-2 text-gray-600">
                 <MapPin className="h-5 w-5" />
                 <span className="text-sm">

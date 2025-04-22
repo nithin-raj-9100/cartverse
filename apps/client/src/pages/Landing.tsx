@@ -493,7 +493,7 @@ export default function Landing() {
                 transition={{ duration: 0.5 }}
                 className="mb-4 text-3xl font-bold md:text-4xl"
               >
-                Join Our Community
+                We Value Your Feedback!
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, x: -20 }}
@@ -502,94 +502,10 @@ export default function Landing() {
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="mb-8 text-lg text-white/90"
               >
-                Subscribe to our newsletter and be the first to know about new
-                products, exclusive offers, and shopping tips.
+                Have suggestions or comments about our store or products? Let us
+                know using the form in the footer!
               </motion.p>
-
-              <motion.ul
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ staggerChildren: 0.1 }}
-                className="mb-8 space-y-3"
-              >
-                {[
-                  "Weekly exclusive offers and discounts",
-                  "New product announcements",
-                  "Seasonal shopping guides and tips",
-                  "Early access to sales and events",
-                ].map((item, index) => (
-                  <motion.li
-                    key={index}
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                    className="flex items-center"
-                  >
-                    <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-white/80" />
-                    <span>{item}</span>
-                  </motion.li>
-                ))}
-              </motion.ul>
             </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="w-full max-w-md rounded-2xl bg-white/10 p-8 shadow-lg backdrop-blur-sm"
-            >
-              <h3 className="mb-6 text-center text-xl font-semibold">
-                Subscribe to Our Newsletter
-              </h3>
-              <form className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="fullName"
-                    className="mb-2 block text-sm font-medium"
-                  >
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    id="fullName"
-                    name="fullName"
-                    placeholder="Your full name"
-                    className="w-full rounded-lg bg-white/20 px-4 py-3 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
-                    aria-label="Full Name for Newsletter"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="mb-2 block text-sm font-medium"
-                  >
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Your email address"
-                    className="w-full rounded-lg bg-white/20 px-4 py-3 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
-                    required
-                    aria-label="Email Address for Newsletter"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="mt-6 w-full bg-white py-6 text-lg font-medium text-primary hover:bg-white/90"
-                >
-                  Subscribe Now
-                </Button>
-                <p className="mt-4 text-center text-xs text-white/70">
-                  By subscribing, you agree to our Privacy Policy and Terms of
-                  Service.
-                </p>
-              </form>
-            </motion.div>
           </div>
         </div>
       </section>
