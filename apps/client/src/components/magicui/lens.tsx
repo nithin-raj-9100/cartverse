@@ -27,6 +27,10 @@ interface LensProps {
   lensColor?: string;
   /** The aria label of the lens */
   ariaLabel?: string;
+  /** The border color of the lens */
+  borderColor?: string;
+  /** The border width of the lens */
+  borderWidth?: number;
 }
 
 export function Lens({
@@ -39,6 +43,8 @@ export function Lens({
   duration = 0.1,
   lensColor = "black",
   ariaLabel = "Zoom Area",
+  borderColor = "#ffffff",
+  borderWidth = 2,
 }: LensProps) {
   if (zoomFactor < 1) {
     throw new Error("zoomFactor must be greater than 1");
@@ -79,31 +85,58 @@ export function Lens({
     const { x, y } = currentPosition;
 
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.58 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.8 }}
-        transition={{ duration }}
-        className="absolute inset-0 overflow-hidden"
-        style={{
-          maskImage,
-          WebkitMaskImage: maskImage,
-          transformOrigin: `${x}px ${y}px`,
-          zIndex: 50,
-        }}
-      >
-        <div
-          className="absolute inset-0"
+      <>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.58 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          transition={{ duration }}
+          className="pointer-events-none absolute"
           style={{
-            transform: `scale(${zoomFactor})`,
+            width: lensSize,
+            height: lensSize,
+            borderRadius: "50%",
+            border: `${borderWidth}px solid ${borderColor}`,
+            left: x - lensSize / 2,
+            top: y - lensSize / 2,
+            zIndex: 51,
+          }}
+        />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.58 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          transition={{ duration }}
+          className="absolute inset-0 overflow-hidden"
+          style={{
+            maskImage,
+            WebkitMaskImage: maskImage,
             transformOrigin: `${x}px ${y}px`,
+            zIndex: 50,
           }}
         >
-          {children}
-        </div>
-      </motion.div>
+          <div
+            className="absolute inset-0"
+            style={{
+              transform: `scale(${zoomFactor})`,
+              transformOrigin: `${x}px ${y}px`,
+            }}
+          >
+            {children}
+          </div>
+        </motion.div>
+      </>
     );
-  }, [currentPosition, lensSize, lensColor, zoomFactor, children, duration]);
+  }, [
+    currentPosition,
+    lensSize,
+    zoomFactor,
+    children,
+    duration,
+    borderColor,
+    borderWidth,
+    maskImage,
+  ]);
 
   return (
     <div
