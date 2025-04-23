@@ -288,7 +288,7 @@ export function SearchComponent() {
         <div className="relative">
           <Input
             ref={inputRef}
-            className="peer rounded-md border border-gray-300 pe-9 ps-9 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="peer rounded-md border border-gray-300 pe-9 ps-9 shadow-sm focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
             placeholder="Search Products..."
             type="text"
             value={searchTerm}
