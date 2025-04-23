@@ -4,6 +4,8 @@
   "globalEnv": [
     "NODE_ENV",
     "VITE_STRIPE_PUBLIC_KEY",
+    "VITE_SUPABASE_URL",
+    "VITE_SUPABASE_ANON_KEY",
     "DATABASE_URL",
     "DIRECT_URL",
     "SUPABASE_SERVICE_KEY",
@@ -24,6 +26,8 @@
       "env": [
         "NODE_ENV",
         "VITE_STRIPE_PUBLIC_KEY",
+        "VITE_SUPABASE_URL",
+        "VITE_SUPABASE_ANON_KEY",
         "DATABASE_URL",
         "DIRECT_URL"
       ]
