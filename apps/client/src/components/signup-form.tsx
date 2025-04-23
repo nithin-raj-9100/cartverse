@@ -17,6 +17,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/slices/auth";
 import { useAddToCart } from "@/hooks/useCart";
 import toast from "react-hot-toast";
+import { OAuthButtons } from "./oauth-buttons";
+import { Separator } from "./ui/separator";
 
 export function SignupForm({
   className,
@@ -203,7 +205,20 @@ export function SignupForm({
                   {mutation.isPending ? "Signing up..." : "Sign up"}
                 </Button>
               </div>
-              <div className="text-center text-sm">
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+
+              <OAuthButtons />
+
+              <div className="mt-4 text-center text-sm">
                 Already have an account?{" "}
                 <Link to="/login" className="underline underline-offset-4">
                   Login

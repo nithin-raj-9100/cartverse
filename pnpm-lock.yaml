@@ -160,6 +160,9 @@ importers:
       '@stripe/stripe-js':
         specifier: ^5.10.0
         version: 5.10.0
+      '@supabase/supabase-js':
+        specifier: ^2.49.1
+        version: 2.49.1
       '@tanstack/react-query':
         specifier: ^5.66.0
         version: 5.66.0(react@18.3.1)

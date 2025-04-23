@@ -1,193 +1,128 @@
-// import { FastifyInstance } from "fastify";
-// import { prisma } from "../utils/prisma";
-// import { generateSessionToken, createSession } from "../utils/auth";
+import { FastifyInstance } from "fastify";
+import { prisma } from "../utils/prisma";
+import { generateSessionToken, createSession } from "../utils/auth";
+import { mergeGuestCartWithUser } from "../cart/cart.service";
+import { supabase } from "../utils/supabase";
 
-// declare module "fastify" {
-//   interface FastifyInstance {
-//     githubOAuth2: any;
-//   }
-// }
+interface OAuthCallbackBody {
+  id: string;
+  email: string;
+  name: string;
+  provider: string;
+  providerAccountId: string;
+}
 
-// export async function oauthRoutes(fastify: FastifyInstance) {
-//   // Callback route
-//   fastify.get("/github/callback", async function (request, reply) {
-//     try {
-//       fastify.log.info("Starting GitHub OAuth callback");
+export function oauthRoutes(fastify: FastifyInstance) {
+  fastify.post<{ Body: OAuthCallbackBody }>(
+    "/callback",
+    async (request, reply) => {
+      try {
+        const { id, email, name, provider, providerAccountId } = request.body;
 
-//       // Log the request query parameters
-//       fastify.log.info(
-//         { query: request.query },
-//         "Callback request query parameters",
-//       );
+        let user = await prisma.user.findUnique({ where: { email } });
 
-//       // Verify OAuth2 plugin is registered
-//       if (!this.githubOAuth2) {
-//         fastify.log.error("GitHub OAuth2 plugin is not registered");
-//         throw new Error("GitHub OAuth2 plugin is not registered");
-//       }
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              id,
+              email,
+              name,
+            },
+          });
 
-//       // Log the OAuth2 plugin state
-//       fastify.log.info(
-//         {
-//           hasGithubOAuth2: !!this.githubOAuth2,
-//           githubOAuth2Methods: Object.keys(this.githubOAuth2),
-//         },
-//         "OAuth2 plugin state",
-//       );
+          await prisma.oAuthAccount.create({
+            data: {
+              provider,
+              providerAccountId,
+              userId: user.id,
+            },
+          });
+        } else {
+          const existingOAuthAccount = await prisma.oAuthAccount.findUnique({
+            where: {
+              provider_providerAccountId: {
+                provider,
+                providerAccountId,
+              },
+            },
+          });
 
-//       const token =
-//         await this.githubOAuth2.getAccessTokenFromAuthorizationCodeFlow(
-//           request,
-//         );
+          if (!existingOAuthAccount) {
+            await prisma.oAuthAccount.create({
+              data: {
+                provider,
+                providerAccountId,
+                userId: user.id,
+              },
+            });
+          }
+        }
 
-//       fastify.log.info({ token }, "Raw token response");
+        const guestId = request.cookies.guest_id;
+        if (guestId && guestId.startsWith("guest_")) {
+          try {
+            await mergeGuestCartWithUser(guestId, user.id);
+          } catch (error) {
+            fastify.log.error(
+              `Failed to merge guest cart during OAuth login: ${error}`
+            );
+          }
+        }
 
-//       // GitHub API requires token format, not Bearer
-//       const authHeader = `Bearer ${token.access_token}`;
+        const token = await generateSessionToken();
+        const session = await createSession(token, user.id);
 
-//       // Fetch user data from GitHub
-//       const userResponse = await fetch("https://api.github.com/user", {
-//         headers: {
-//           Authorization: authHeader,
-//           Accept: "application/vnd.github.v3+json",
-//           "User-Agent": "CartVerse-App",
-//         },
-//       });
+        const isProduction = process.env.NODE_ENV === "production";
+        reply.setCookie("session_token", token, {
+          path: "/",
+          httpOnly: true,
+          secure: isProduction,
+          sameSite: "lax",
+          expires: session.expiresAt,
+          signed: true,
+        });
 
-//       if (!userResponse.ok) {
-//         const errorData = await userResponse.text();
-//         fastify.log.error(
-//           {
-//             status: userResponse.status,
-//             statusText: userResponse.statusText,
-//             error: errorData,
-//             headers: userResponse.headers,
-//           },
-//           "Failed to fetch GitHub user",
-//         );
-//         throw new Error(
-//           `Failed to fetch GitHub user: ${userResponse.statusText}`,
-//         );
-//       }
+        return {
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          },
+          sessionId: session.id,
+        };
+      } catch (error) {
+        fastify.log.error(`OAuth callback error: ${error}`);
+        return reply.status(500).send({
+          message: "Authentication failed",
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
+      }
+    }
+  );
 
-//       const githubUser = await userResponse.json();
-//       fastify.log.info({ githubUser }, "Successfully fetched GitHub user data");
+  fastify.post("/verify", async (request, reply) => {
+    try {
+      const { token } = request.body as { token: string };
 
-//       // Fetch email (since it might be private)
-//       const emailsResponse = await fetch("https://api.github.com/user/emails", {
-//         headers: {
-//           Authorization: authHeader,
-//           Accept: "application/vnd.github.v3+json",
-//           "User-Agent": "CartVerse-App",
-//         },
-//       });
+      const { data, error } = await supabase.auth.getUser(token);
 
-//       if (!emailsResponse.ok) {
-//         const errorData = await emailsResponse.text();
-//         fastify.log.error(
-//           {
-//             status: emailsResponse.status,
-//             statusText: emailsResponse.statusText,
-//             error: errorData,
-//             headers: emailsResponse.headers,
-//           },
-//           "Failed to fetch GitHub emails",
-//         );
-//         throw new Error(
-//           `Failed to fetch GitHub emails: ${emailsResponse.statusText}`,
-//         );
-//       }
+      if (error || !data.user) {
+        return reply.status(401).send({
+          message: "Invalid token",
+          error: error?.message || "User not found",
+        });
+      }
 
-//       const emails = await emailsResponse.json();
-//       fastify.log.info({ emails }, "GitHub emails response");
-
-//       if (!Array.isArray(emails)) {
-//         throw new Error("Invalid email response from GitHub");
-//       }
-
-//       const primaryEmail = emails.find(
-//         (email: { primary: boolean; email: string; verified: boolean }) =>
-//           email.primary && email.verified,
-//       )?.email;
-
-//       if (!primaryEmail) {
-//         throw new Error("No verified primary email found");
-//       }
-
-//       fastify.log.info({ primaryEmail }, "Found primary email");
-
-//       // Find or create user
-//       let user = await prisma.user.findFirst({
-//         where: {
-//           OAuthAccount: {
-//             some: {
-//               provider: "github",
-//               providerAccountId: githubUser.id.toString(),
-//             },
-//           },
-//         },
-//       });
-
-//       if (!user) {
-//         // Check if user exists with the same email
-//         const existingUser = await prisma.user.findUnique({
-//           where: { email: primaryEmail },
-//         });
-
-//         if (existingUser) {
-//           // Link GitHub account to existing user
-//           await prisma.oAuthAccount.create({
-//             data: {
-//               provider: "github",
-//               providerAccountId: githubUser.id.toString(),
-//               userId: existingUser.id,
-//             },
-//           });
-//           user = existingUser;
-//           fastify.log.info("Linked GitHub account to existing user");
-//         } else {
-//           // Create new user and OAuth account
-//           user = await prisma.user.create({
-//             data: {
-//               email: primaryEmail,
-//               name: githubUser.name || githubUser.login,
-//               OAuthAccount: {
-//                 create: {
-//                   provider: "github",
-//                   providerAccountId: githubUser.id.toString(),
-//                 },
-//               },
-//             },
-//           });
-//           fastify.log.info("Created new user with GitHub account");
-//         }
-//       } else {
-//         fastify.log.info("Found existing user with GitHub account");
-//       }
-
-//       // Create session
-//       const sessionToken = generateSessionToken();
-//       const session = await createSession(sessionToken, user.id);
-//       fastify.log.info("Created new session");
-
-//       // Set cookie
-//       reply.setCookie("session_token", sessionToken, {
-//         path: "/",
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === "production",
-//         sameSite: "lax",
-//         expires: session.expiresAt,
-//         signed: true,
-//       });
-
-//       fastify.log.info("Set session cookie, redirecting to frontend");
-//       // Redirect to frontend
-//       return reply.redirect("http://localhost:5173");
-//     } catch (error) {
-//       fastify.log.error(error, "GitHub OAuth callback failed");
-//       return reply.redirect(
-//         "http://localhost:5173/login?error=github-auth-failed",
-//       );
-//     }
-//   });
-// }
+      return {
+        user: data.user,
+        valid: true,
+      };
+    } catch (error) {
+      fastify.log.error(`Token verification error: ${error}`);
+      return reply.status(500).send({
+        message: "Token verification failed",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+}

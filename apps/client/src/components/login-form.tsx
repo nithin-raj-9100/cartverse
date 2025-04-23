@@ -10,6 +10,8 @@ import { login } from "@/lib/api";
 import { useAuthStore } from "@/store/slices/auth";
 import { useAddToCart } from "@/hooks/useCart";
 import toast from "react-hot-toast";
+import { OAuthButtons } from "./oauth-buttons";
+import { Separator } from "./ui/separator";
 
 export function LoginForm({
   className,
@@ -147,7 +149,20 @@ export function LoginForm({
                   {mutation.isPending ? "Logging in..." : "Login"}
                 </Button>
               </div>
-              <div className="text-center text-sm">
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+
+              <OAuthButtons />
+
+              <div className="mt-4 text-center text-sm">
                 Don&apos;t have an account?{" "}
                 <Link to="/signup" className="underline underline-offset-4">
                   Sign up

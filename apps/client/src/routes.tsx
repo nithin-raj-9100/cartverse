@@ -14,6 +14,7 @@ import CheckoutSuccess from "./pages/checkout-success";
 import CheckoutFailure from "./pages/checkout-failure";
 import OrdersPage from "./pages/OrdersPage";
 import ProfilePage from "./pages/ProfilePage";
+import AuthCallback from "./pages/auth/callback";
 
 export const routes = [
   {
@@ -91,6 +92,10 @@ export const routes = [
                 <Login />
               </AuthRoute>
             ),
+          },
+          {
+            path: "auth/callback",
+            element: <AuthCallback />,
           },
         ],
       },

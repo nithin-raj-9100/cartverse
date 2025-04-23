@@ -4,6 +4,7 @@ import authRoutes from "./modules/auth";
 import { loginRoutes } from "./modules/auth/login";
 import { signupRoutes } from "./modules/auth/signup";
 import { logoutRoutes } from "./modules/auth/logout";
+import { oauthRoutes } from "./modules/auth/oauth";
 import cartRoutes from "./modules/cart";
 import paymentRoutes from "./modules/payment";
 import ordersRoutes from "./modules/orders";
@@ -39,6 +40,7 @@ export async function registerRoutes(app: FastifyInstance) {
   await app.register(loginRoutes, { prefix: "/auth/login" });
   await app.register(signupRoutes, { prefix: "/auth/signup" });
   await app.register(logoutRoutes, { prefix: "/auth/logout" });
+  await app.register(oauthRoutes, { prefix: "/auth/oauth" });
 
   // Product routes
   await app.register(productsRoutes);
