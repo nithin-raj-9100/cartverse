@@ -159,7 +159,7 @@ export default function Landing() {
                 <Button
                   asChild
                   size="lg"
-                  className="bg-primary px-8 py-6 text-lg hover:bg-primary/90"
+                  className="h-[52px] min-w-[200px] bg-primary px-8 py-3 text-lg font-medium hover:bg-primary/90"
                 >
                   <Link
                     to="/products"
@@ -172,7 +172,7 @@ export default function Landing() {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="border-white bg-transparent px-8 py-6 text-lg text-white hover:bg-white/10"
+                  className="h-[52px] min-w-[200px] border-white bg-transparent px-8 py-3 text-lg font-medium text-white hover:bg-white/10"
                 >
                   <Link
                     to="/categories"
