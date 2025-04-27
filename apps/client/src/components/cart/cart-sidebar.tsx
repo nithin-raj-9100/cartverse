@@ -64,9 +64,9 @@ export function CartSidebar() {
             <div className="flex items-center gap-2">
               <ShoppingCart className="h-5 w-5" />
               <SheetTitle>Your Cart</SheetTitle>
-              {safeCart.totalQuantity > 0 && (
+              {safeCart.itemCount > 0 && (
                 <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
-                  {safeCart.totalQuantity}
+                  {safeCart.itemCount}
                 </span>
               )}
             </div>
