@@ -97,6 +97,8 @@ export default function AuthCallback() {
         login(userData.user, userData.sessionId);
 
         queryClient.invalidateQueries({ queryKey: ["auth"] });
+
+        navigate("/", { replace: true });
       } catch (err) {
         console.error("Error during OAuth callback:", err);
         setError(err instanceof Error ? err.message : "Authentication failed");
@@ -105,7 +107,7 @@ export default function AuthCallback() {
     };
 
     handleCallback();
-  }, []);
+  }, [location.hash, login, navigate, queryClient, searchParams]);
 
   if (error) {
     return (
