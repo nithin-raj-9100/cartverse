@@ -13,7 +13,7 @@ export const navigation = {
         {
           name: "Hoodies",
           href: "/search/hoodies",
-          imageSrc: "/images/hoodie-1.png",
+          imageSrc: "/images/hoodie-1.webp",
           imageAlt: "Hoodie with dark blue and light gray stripes",
         },
       ],
@@ -74,7 +74,7 @@ export const navigation = {
         {
           name: "Stylish Baby Caps",
           href: "/search/caps",
-          imageSrc: "/images/baby-cap-black.png",
+          imageSrc: "/images/baby-cap-black.webp",
           imageAlt: "Black baby cap",
         },
       ],
