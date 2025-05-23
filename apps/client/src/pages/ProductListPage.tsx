@@ -5,10 +5,44 @@ import { getProducts, GetProductsParams } from "@/api/products";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { Product } from "@/types";
+import { useLocation } from "react-router";
 
 const ProductListPage = () => {
   const [sortOption, setSortOption] = useState<string>("newest");
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+
+  const getPageInfo = () => {
+    const path = location.pathname;
+
+    if (path === "/products/featured") {
+      return {
+        title: "Featured Products",
+        description: "Our hand-picked selection of top-quality products",
+        filter: "featured",
+      };
+    } else if (path === "/products/new") {
+      return {
+        title: "New Arrivals",
+        description: "Discover the latest additions to our collection",
+        filter: "new",
+      };
+    } else if (path === "/products/best-sellers") {
+      return {
+        title: "Best Sellers",
+        description: "Most popular products loved by our customers",
+        filter: "best-sellers",
+      };
+    } else {
+      return {
+        title: "All Products",
+        description: "Browse our complete collection of quality products",
+        filter: null,
+      };
+    }
+  };
+
+  const pageInfo = getPageInfo();
 
   const {
     data,
@@ -18,12 +52,13 @@ const ProductListPage = () => {
     isLoading,
     isError,
   } = useInfiniteQuery({
-    queryKey: ["products", "infinite", sortOption],
+    queryKey: ["products", "infinite", sortOption, pageInfo.filter],
     queryFn: async ({ pageParam = 0 }) => {
       const params: GetProductsParams = {
         offset: pageParam,
         limit: 12,
         sort: sortOption,
+        ...(pageInfo.filter && { filter: pageInfo.filter }),
       };
       return getProducts(params);
     },
@@ -94,14 +129,21 @@ const ProductListPage = () => {
   return (
     <div className="bg-white py-8">
       <div className="mx-auto max-w-7xl px-4">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-gray-900">{pageInfo.title}</h1>
+          <p className="mt-2 text-gray-600">{pageInfo.description}</p>
+        </div>
+
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">All Products</h2>
+          <h2 className="text-lg font-semibold text-gray-700">
+            {totalProducts > 0 ? `${totalProducts} Products` : "Products"}
+          </h2>
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Sort By:</span>
             <select
               value={sortOption}
               onChange={handleSortChange}
-              className="rounded border p-1 text-sm"
+              className="rounded border border-gray-300 px-3 py-1 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="newest">Newest</option>
               <option value="price_asc">Price: Low to High</option>
@@ -121,7 +163,13 @@ const ProductListPage = () => {
           </div>
         )}
 
-        <ProductGrid products={products} />
+        {products.length === 0 && !isLoading ? (
+          <div className="py-12 text-center">
+            <p className="text-gray-500">No products found.</p>
+          </div>
+        ) : (
+          <ProductGrid products={products} />
+        )}
 
         <div ref={loadMoreRef} className="mt-8 flex justify-center py-4">
           {isFetchingNextPage && (

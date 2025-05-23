@@ -15,6 +15,15 @@ import CheckoutFailure from "./pages/checkout-failure";
 import OrdersPage from "./pages/OrdersPage";
 import ProfilePage from "./pages/ProfilePage";
 import AuthCallback from "./pages/auth/callback";
+import Contact from "./pages/Contact";
+import FAQ from "./pages/FAQ";
+import Shipping from "./pages/Shipping";
+import Returns from "./pages/Returns";
+import About from "./pages/About";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Blog from "./pages/Blog";
+import Careers from "./pages/Careers";
 
 export const routes = [
   {
@@ -35,6 +44,18 @@ export const routes = [
           },
           {
             path: "products",
+            element: <ProductListPage />,
+          },
+          {
+            path: "products/featured",
+            element: <ProductListPage />,
+          },
+          {
+            path: "products/new",
+            element: <ProductListPage />,
+          },
+          {
+            path: "products/best-sellers",
             element: <ProductListPage />,
           },
           {
@@ -68,6 +89,42 @@ export const routes = [
           {
             path: "search/:category",
             element: <Search />,
+          },
+          {
+            path: "contact",
+            element: <Contact />,
+          },
+          {
+            path: "faq",
+            element: <FAQ />,
+          },
+          {
+            path: "shipping",
+            element: <Shipping />,
+          },
+          {
+            path: "returns",
+            element: <Returns />,
+          },
+          {
+            path: "about",
+            element: <About />,
+          },
+          {
+            path: "careers",
+            element: <Careers />,
+          },
+          {
+            path: "blog",
+            element: <Blog />,
+          },
+          {
+            path: "terms",
+            element: <Terms />,
+          },
+          {
+            path: "privacy",
+            element: <Privacy />,
           },
           {
             path: "login",
